@@ -3,7 +3,8 @@
 <head>
     <link rel="stylesheet" href="../assets/brand.css">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- CẬP NHẬT: Cho phép zoom (user-scalable=yes) và bỏ giới hạn maximum-scale -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Tens and Ones Game</title>
     
     <!-- Tailwind CSS -->
@@ -24,7 +25,8 @@
         body {
             font-family: 'Nunito', sans-serif;
             background: linear-gradient(135deg, #FFD700 0%, #FF69B4 100%);
-            touch-action: none; 
+            /* CẬP NHẬT: Đổi từ 'none' sang 'manipulation' để cho phép Panning/Zooming nhưng vẫn tối ưu cho touch */
+            touch-action: manipulation; 
             overflow: hidden;
             user-select: none;
             height: 100dvh; 
