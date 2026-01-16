@@ -2,9 +2,17 @@
 <html lang="en">
  <head>
   <link rel="stylesheet" href="../assets/brand.css">
+  <!-- Link CSS bên ngoài -->
+  <link rel="stylesheet" href="../assets/brand.css">
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Animal Addition Adventure</title>
+  
+  <!-- FIX FONT: Nhúng font Poppins từ Google -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
         body {
@@ -12,8 +20,10 @@
             margin: 0;
             padding: 20px;
             background: linear-gradient(135deg, #FFE5F1, #E5F3FF, #F0FFE5);
-            font-family: 'Comic Sans MS', cursive, sans-serif;
+            /* FIX FONT: Thay đổi thành Poppins */
+            font-family: 'Poppins', sans-serif;
             min-height: 100vh;
+            font-weight: 600; /* Tăng độ đậm một chút cho dễ đọc */
         }
         .game-container {
             max-width: 600px;
@@ -29,6 +39,7 @@
             color: #FF6B9D;
             margin-bottom: 20px;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+            font-weight: 700;
         }
         .progress-bar {
             width: 100%;
@@ -52,7 +63,7 @@
             font-size: 1.8em;
             color: #333;
             margin-bottom: 20px;
-            font-weight: bold;
+            font-weight: 700;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -124,9 +135,10 @@
             border: none;
             border-radius: 15px;
             cursor: pointer;
-            font-weight: bold;
+            font-weight: 700;
             transition: all 0.3s ease;
             min-width: 80px;
+            font-family: 'Poppins', sans-serif; /* Đảm bảo nút bấm cũng nhận font */
         }
         .answer-btn {
             background: linear-gradient(135deg, #FFE066, #FF9A56);
@@ -191,11 +203,13 @@
             animation: popIn 0.5s ease;
             width: 90%;
             max-width: 500px;
+            font-family: 'Poppins', sans-serif;
         }
         .mystery-box h3 {
             color: #FF6B9D;
             margin-bottom: 20px;
             font-size: 1.8em;
+            font-weight: 700;
         }
         /* Container needs relative positioning for absolute children */
         .mystery-gifts-container {
@@ -233,6 +247,7 @@
             font-size: 1.2em;
             color: #555;
             margin-top: 10px;
+            font-weight: 600;
         }
 
         @keyframes popIn {
@@ -248,10 +263,11 @@
             background: rgba(0,0,0,0.5);
             z-index: 999;
         }
-    </style>
+   </style>
  </head>
  <body>
   <img src="../assets/logo-oodles-math.png" class="oodles-logo">
+  <img src="../assets/logo-oodles-math.png" class="oodles-logo" onerror="this.style.display='none'">
   <div class="game-container">
    <h1 class="title" id="gameTitle">Animal Addition Adventure!</h1>
    <div class="progress-bar">
@@ -660,6 +676,6 @@
         }, {once:true});
 
         startNewQuestion();
-    </script>
+  </script>
  </body>
 </html>
