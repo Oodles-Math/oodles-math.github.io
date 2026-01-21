@@ -200,7 +200,7 @@
         /* Thủ môn ĐẸP - TOÀN THÂN */
         .goalkeeper-container {
             position: absolute;
-            bottom: -2vmin; /* Điều chỉnh để chân chạm đất chuẩn hơn */
+            bottom: -2vmin; 
             left: 50%;
             transform: translateX(-50%);
             width: 22vmin;
@@ -367,7 +367,7 @@
         }
 
         .hidden { display: none !important; }
-        /* Pháo hoa phải ở trên cùng */
+        
         #fireworks { 
             position: absolute; 
             top: 0; 
@@ -375,8 +375,127 @@
             width: 100%; 
             height: 100%; 
             pointer-events: none; 
-            z-index: 1100; /* Cao hơn màn hình kết thúc (1000) */
+            z-index: 1100;
         }
+
+        /* --- Mystery Box Game Styles (ĐẸP HƠN & ANIMATION) --- */
+        .box-container {
+            display: flex;
+            justify-content: center;
+            gap: 5vmin;
+            margin-top: 5vmin;
+            position: relative;
+            height: 25vmin;
+            width: 100%;
+        }
+
+        .mystery-box {
+            width: 22vmin;
+            height: 22vmin;
+            /* Hộp quà màu đỏ rực rỡ */
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            border-radius: 2vmin;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 8vmin;
+            cursor: pointer;
+            position: absolute;
+            top: 0;
+            /* QUAN TRỌNG: Thêm transition left để tạo hiệu ứng di chuyển */
+            transition: left 0.5s ease-in-out, transform 0.3s, filter 0.2s;
+            box-shadow: 0 2vmin 3vmin rgba(0,0,0,0.4), inset 0 0 2vmin rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+
+        /* Nơ ngang */
+        .mystery-box::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 4vmin;
+            background: #f1c40f; /* Vàng */
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            box-shadow: 0 0 1vmin rgba(0,0,0,0.1);
+            z-index: 1;
+        }
+
+        /* Nơ dọc */
+        .mystery-box::after {
+            content: '';
+            position: absolute;
+            height: 100%;
+            width: 4vmin;
+            background: #f1c40f;
+            left: 50%;
+            top: 0;
+            transform: translateX(-50%);
+            box-shadow: 0 0 1vmin rgba(0,0,0,0.1);
+            z-index: 1;
+        }
+
+        /* Dấu hỏi trên nắp */
+        .box-lid-mark {
+            position: absolute;
+            color: rgba(255,255,255,0.9);
+            font-size: 8vmin;
+            font-weight: bold;
+            z-index: 2;
+            text-shadow: 0 0.5vmin 0 rgba(0,0,0,0.2);
+        }
+
+        .mystery-box:hover {
+            filter: brightness(1.1);
+            transform: scale(1.05); /* Hiệu ứng hover nhẹ */
+        }
+
+        /* Trạng thái mở hộp */
+        .mystery-box.open {
+            background: #fff;
+            border: 1vmin solid #f1c40f;
+        }
+        
+        .mystery-box.open::before, .mystery-box.open::after, .mystery-box.open .box-lid-mark {
+            display: none; /* Ẩn nơ khi mở */
+        }
+
+        .mystery-content {
+            opacity: 0;
+            transition: opacity 0.3s;
+            transform: scale(0);
+            z-index: 5;
+        }
+
+        .mystery-box.open .mystery-content {
+            opacity: 1;
+            transform: scale(1);
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        /* Hiệu ứng báo hiệu hộp thắng */
+        @keyframes winnerPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2) translateY(-2vmin); box-shadow: 0 0 5vmin gold; }
+            100% { transform: scale(1); }
+        }
+        .mystery-box.highlight {
+            animation: winnerPulse 0.8s ease-in-out infinite;
+            z-index: 20;
+        }
+
+        /* Vị trí cho các hộp khi xáo trộn - Tính toán để cân đối màn hình */
+        /* Giả sử Container 100%, Tâm là 50% */
+        /* Box rộng 22vmin. Khoảng cách 5vmin */
+        /* Box giữa (pos-1): left: calc(50% - 11vmin) */
+        /* Box trái (pos-0): left: calc(50% - 11vmin - 22vmin - 5vmin) = 50% - 38vmin */
+        /* Box phải (pos-2): left: calc(50% + 11vmin + 5vmin) = 50% + 16vmin */
+        
+        .pos-0 { left: calc(50% - 38vmin); } 
+        .pos-1 { left: calc(50% - 11vmin); } 
+        .pos-2 { left: calc(50% + 16vmin); } 
+
     </style>
 </head>
 <body>
@@ -391,15 +510,19 @@
         <button class="btn" onclick="initGame()">PLAY NOW</button>
     </div>
 
-    <!-- End Screen -->
-    <div id="endScreen" class="screen hidden">
-        <h1 class="font-black text-yellow-400">MATCH OVER!</h1>
-        <div class="bg-white/10 p-6 rounded-2xl mb-8 border-2 border-white/20">
-            <p class="score-text font-bold text-white mb-2">SCORE</p>
-            <p class="score-val font-black text-yellow-300"><span id="finalScore">0</span>/10</p>
-            <p id="endMessage" class="text-white font-bold text-2xl mt-4"></p> <!-- Nơi hiện lời khen -->
+    <!-- Mini Game Screen (Total Score & Box Picking) -->
+    <div id="miniGameScreen" class="screen hidden">
+        <h1 class="font-black text-yellow-400 text-[6vmin]">PICK A BOX!</h1>
+        <p class="text-white text-[3vmin] mb-2">Where is your prize?</p>
+        
+        <div class="box-container" id="boxContainer">
+            <!-- Boxes injected by JS -->
         </div>
-        <button class="btn" onclick="resetGame()">PLAY AGAIN</button>
+
+        <div id="resultMessage" class="hidden flex flex-col items-center mt-[25vmin]">
+            <p class="text-[4vmin] text-white font-bold">YOUR SCORE: <span id="finalScoreDisplay" class="text-yellow-300">0</span>/10</p>
+            <button class="btn" onclick="resetGame()">PLAY AGAIN</button>
+        </div>
     </div>
 
     <div class="game-container" id="gameContainer">
@@ -426,7 +549,7 @@
 
         <div class="goal-post">
             <div class="net"></div>
-            <!-- Thủ môn: SVG Chi tiết và đẹp hơn -->
+            <!-- Thủ môn -->
             <div class="goalkeeper-container" id="goalkeeper">
                 <svg class="gk-svg" viewBox="0 0 200 260" xmlns="http://www.w3.org/2000/svg">
                     <defs>
@@ -443,40 +566,22 @@
                             <stop offset="100%" stop-color="#000"/>
                         </linearGradient>
                     </defs>
-
-                    <!-- Chân sau (tạo chiều sâu) -->
                     <path d="M75 170 L70 230" stroke="#f5d0a9" stroke-width="18" stroke-linecap="round"/>
                     <path d="M125 170 L130 230" stroke="#f5d0a9" stroke-width="18" stroke-linecap="round"/>
-
-                    <!-- Giày -->
                     <path d="M55 230 Q55 245 75 250 L85 250 Q90 240 80 230 Z" fill="#fff" stroke="#333" stroke-width="2"/>
                     <path d="M115 230 Q115 245 135 250 L145 250 Q150 240 140 230 Z" fill="#fff" stroke="#333" stroke-width="2"/>
-                    
-                    <!-- Tất -->
                     <rect x="62" y="200" width="16" height="30" fill="#fff"/>
                     <rect x="122" y="200" width="16" height="30" fill="#fff"/>
                     <path d="M62 205 H78 M62 215 H78 M122 205 H138 M122 215 H138" stroke="red" stroke-width="2"/>
-
-                    <!-- Quần -->
                     <path d="M60 150 Q55 180 80 180 H120 Q145 180 140 150 L135 130 H65 Z" fill="url(#shortsGrad)"/>
-
-                    <!-- Áo -->
                     <path d="M65 135 L60 80 Q60 70 80 70 H120 Q140 70 140 80 L135 135 Z" fill="url(#shirtGrad)"/>
                     <text x="100" y="115" font-family="Arial" font-weight="bold" font-size="30" fill="white" text-anchor="middle">1</text>
-
-                    <!-- Tay -->
                     <path d="M60 85 Q30 100 35 125" fill="none" stroke="url(#shirtGrad)" stroke-width="16" stroke-linecap="round"/>
                     <path d="M140 85 Q170 100 165 125" fill="none" stroke="url(#shirtGrad)" stroke-width="16" stroke-linecap="round"/>
-
-                    <!-- Găng tay -->
                     <circle cx="35" cy="130" r="18" fill="white" stroke="#333" stroke-width="2"/>
                     <circle cx="165" cy="130" r="18" fill="white" stroke="#333" stroke-width="2"/>
-
-                    <!-- Đầu -->
                     <circle cx="100" cy="50" r="28" fill="url(#skinGrad)"/>
-                    <!-- Tóc -->
                     <path d="M75 40 Q100 10 125 40 Q130 55 125 50 Q100 20 75 50 Z" fill="#3e2723"/>
-                    <!-- Mặt -->
                     <circle cx="90" cy="50" r="3" fill="#333"/>
                     <circle cx="110" cy="50" r="3" fill="#333"/>
                     <path d="M92 62 Q100 68 108 62" fill="none" stroke="#333" stroke-width="2"/>
@@ -612,12 +717,15 @@
             document.getElementById('target2')
         ];
         const startScreen = document.getElementById('startScreen');
-        const endScreen = document.getElementById('endScreen');
+        const miniGameScreen = document.getElementById('miniGameScreen');
+        const boxContainer = document.getElementById('boxContainer');
+        const resultMessage = document.getElementById('resultMessage');
+        const finalScoreDisplay = document.getElementById('finalScoreDisplay');
 
         function initGame() {
             initAudio();
             startScreen.classList.add('hidden');
-            endScreen.classList.add('hidden');
+            miniGameScreen.classList.add('hidden');
             score = 0;
             currentQuestion = 0;
             scoreDisplay.innerText = score;
@@ -630,7 +738,12 @@
             nextTurn();
         }
 
-        function resetGame() { initGame(); }
+        function resetGame() { 
+            // Clear boxes
+            boxContainer.innerHTML = '';
+            resultMessage.classList.add('hidden');
+            initGame(); 
+        }
 
         function nextTurn() {
             if (currentQuestion >= totalQuestions) {
@@ -707,16 +820,13 @@
             const ballStartRect = ballWrapper.getBoundingClientRect();
             const goalRect = goalPost.getBoundingClientRect();
             
-            // Calculate center points
             const tx = targetRect.left + targetRect.width/2;
             const ty = targetRect.top + targetRect.height/2;
             const bx = ballStartRect.left + ballStartRect.width/2;
             const by = ballStartRect.top + ballStartRect.height/2;
             const goalCenterY = goalRect.top + goalRect.height / 2;
             
-            // Calculate vectors
             const moveX = tx - bx;
-            const moveY = ty - by; 
             const distToGoalY = goalCenterY - by; 
 
             ballWrapper.classList.add('ball-flying');
@@ -727,20 +837,21 @@
                 goalkeeper.style.transform = `translateX(-50%) translateX(${diveDir}px) rotate(${diveDir > 0 ? 40 : -40}deg)`;
                 setTimeout(() => showFeedback(true), 700);
             } else {
-                // LOGIC CHỌN SAI: BÓNG BAY VÀO GÔN NHƯNG BỊ CẢN PHÁ
                 ballWrapper.style.transform = `translateX(-50%) translate(${moveX}px, ${distToGoalY}px) scale(0.6)`;
                 
                 let gkMoveX = 0;
                 let gkRotate = 0;
-                let gkMoveY = -50; 
+                let gkMoveY = 0; 
 
-                if (targetIdx === 0) { // Sút Trái -> Thủ môn bay trái
+                if (targetIdx === 0) { // Sút Trái
                     gkMoveX = -100;
                     gkRotate = -45;
-                } else if (targetIdx === 2) { // Sút Phải -> Thủ môn bay phải
+                    gkMoveY = -50;
+                } else if (targetIdx === 2) { // Sút Phải
                     gkMoveX = 100;
                     gkRotate = 45;
-                } else { // Sút Giữa -> Thủ môn đứng yên bắt bóng
+                    gkMoveY = -50;
+                } else { // Sút Giữa
                     gkMoveX = 0;
                     gkMoveY = 0; 
                     gkRotate = 0;
@@ -780,22 +891,142 @@
             }, 2000);
         }
 
+        // --- Mini Game Logic ---
         function endGame() {
-            endScreen.classList.remove('hidden');
-            document.getElementById('finalScore').innerText = score;
-            
-            // Hiện thông báo kết quả
-            let msg = "";
-            if (score === 10) msg = "PERFECT! 🏆";
-            else if (score >= 8) msg = "SUPER STAR! 🌟";
-            else if (score >= 5) msg = "GOOD JOB! 👍";
-            else msg = "TRY AGAIN! 💪";
-            
-            document.getElementById('endMessage').innerText = msg;
-            
-            startFireworks();
+            miniGameScreen.classList.remove('hidden');
+            startMiniGame();
         }
 
+        function startMiniGame() {
+            boxContainer.innerHTML = '';
+            resultMessage.classList.add('hidden');
+            
+            // Determine prize based on score
+            let reward = "";
+            let rewardStyle = "";
+            if (score >= 8) {
+                reward = "🏆"; // Gold Cup
+                rewardStyle = "filter: drop-shadow(0 0 10px gold); font-size: 8vmin;";
+            } else if (score >= 5) {
+                reward = "🥈"; // Silver Cup
+                rewardStyle = "filter: grayscale(100%) brightness(120%) drop-shadow(0 0 10px silver); font-size: 8vmin;";
+            } else {
+                reward = "💐"; // Flowers
+                rewardStyle = "font-size: 8vmin;";
+            }
+
+            // Create 3 boxes
+            const boxes = [];
+            const winningIndex = Math.floor(Math.random() * 3);
+
+            for(let i=0; i<3; i++) {
+                const box = document.createElement('div');
+                box.className = `mystery-box pos-${i}`;
+                box.dataset.index = i;
+                
+                const lid = document.createElement('div');
+                lid.className = "box-lid-mark";
+                lid.innerText = "?";
+                box.appendChild(lid);
+
+                const content = document.createElement('div');
+                content.className = "mystery-content";
+                
+                if (i === winningIndex) {
+                    content.innerHTML = reward;
+                    content.style.cssText = rewardStyle;
+                    box.dataset.type = "win";
+                } else {
+                    // Empty boxes
+                    content.innerText = "💨";
+                    box.dataset.type = "lose";
+                }
+                
+                box.appendChild(content);
+                boxContainer.appendChild(box);
+                boxes.push(box);
+            }
+
+            // Sequence: Show prize -> Close -> Shuffle -> Pick
+            setTimeout(() => {
+                // 1. Reveal prize briefly & Highlight
+                const winBox = boxes[winningIndex];
+                winBox.classList.add('open');
+                winBox.classList.add('highlight'); 
+                playSound('goal');
+                
+                setTimeout(() => {
+                    // 2. Close prize
+                    winBox.classList.remove('open');
+                    winBox.classList.remove('highlight');
+                    
+                    setTimeout(() => {
+                        // 3. Shuffle
+                        shuffleBoxes(boxes);
+                    }, 500);
+                }, 2000); 
+            }, 500);
+        }
+
+        function shuffleBoxes(boxes) {
+            let shuffles = 0;
+            const maxShuffles = 10;
+            let currentPositions = [0, 1, 2];
+
+            const interval = setInterval(() => {
+                shuffles++;
+                currentPositions.sort(() => Math.random() - 0.5);
+                
+                boxes.forEach((box, index) => {
+                    box.classList.remove('pos-0', 'pos-1', 'pos-2');
+                    box.classList.add(`pos-${currentPositions[index]}`);
+                    
+                    // Add a slight scale effect during move
+                    box.style.transform = "scale(0.9)";
+                    setTimeout(() => box.style.transform = "scale(1)", 300);
+                });
+
+                if (shuffles >= maxShuffles) {
+                    clearInterval(interval);
+                    setTimeout(() => {
+                        enableBoxPicking(boxes);
+                    }, 600); 
+                }
+            }, 600); 
+        }
+
+        function enableBoxPicking(boxes) {
+            boxes.forEach(box => {
+                box.onclick = () => {
+                    if (box.classList.contains('open')) return;
+                    
+                    // Disable all
+                    boxes.forEach(b => b.onclick = null);
+                    
+                    // Open clicked
+                    box.classList.add('open');
+                    
+                    // Show result
+                    setTimeout(() => {
+                        finalScoreDisplay.innerText = score;
+                        resultMessage.classList.remove('hidden');
+                        
+                        if (box.dataset.type === "win") {
+                            playSound('goal');
+                            startFireworks(true); 
+                        } else {
+                            playSound('miss');
+                            // Open the actual winning box to show what they missed
+                            const winBox = boxes.find(b => b.dataset.type === "win");
+                            if(winBox) winBox.classList.add('open');
+                            startFireworks(false); 
+                        }
+                    }, 500);
+                }
+            });
+        }
+
+        // --- Fireworks ---
         const cvs = document.getElementById('fireworks');
         const ctx = cvs.getContext('2d');
         let particles = [];
@@ -814,21 +1045,30 @@
             for(let i=0; i<50; i++) particles.push(new Particle(x, y));
         }
 
-        function startFireworks() {
+        function startFireworks(intense = false) {
             if(fwInterval) clearInterval(fwInterval);
+            
+            const speed = intense ? 200 : 500;
+            
             fwInterval = setInterval(() => {
-                if(Math.random() < 0.3) {
-                    const x = Math.random() * cvs.width;
-                    const y = Math.random() * cvs.height/2;
-                    for(let i=0; i<30; i++) particles.push(new Particle(x, y));
-                    playSound('kick'); 
+                const x = Math.random() * cvs.width;
+                const y = Math.random() * (cvs.height * 0.6);
+                
+                const colors = intense ? 
+                    ['#ffd700', '#ff0000', '#ffffff'] : 
+                    ['#00ff00', '#00ffff', '#ff00ff']; 
+
+                for(let i=0; i<40; i++) {
+                    particles.push(new Particle(x, y, colors[Math.floor(Math.random()*colors.length)]));
                 }
-            }, 400);
+                playSound('kick'); 
+            }, speed);
+            
             loopFireworks();
         }
 
         class Particle {
-            constructor(x, y) {
+            constructor(x, y, color) {
                 this.x = x;
                 this.y = y;
                 const angle = Math.random() * Math.PI * 2;
@@ -836,13 +1076,13 @@
                 this.vx = Math.cos(angle) * speed;
                 this.vy = Math.sin(angle) * speed;
                 this.life = 1;
-                this.color = `hsl(${Math.random()*360}, 100%, 60%)`;
+                this.color = color || `hsl(${Math.random()*360}, 100%, 60%)`;
             }
             update() {
                 this.x += this.vx;
                 this.y += this.vy;
                 this.vy += 0.15; 
-                this.life -= 0.02;
+                this.life -= 0.015; 
             }
             draw() {
                 ctx.globalAlpha = this.life;
@@ -854,8 +1094,7 @@
         }
 
         function loopFireworks() {
-            // Luôn chạy pháo hoa, kể cả khi endScreen hiện ra
-            if(particles.length === 0 && endScreen.classList.contains('hidden')) {
+            if(particles.length === 0 && miniGameScreen.classList.contains('hidden')) {
                 ctx.clearRect(0,0,cvs.width, cvs.height);
                 return; 
             }
