@@ -101,7 +101,7 @@
                 </button>
             </section>
 
-            <!-- LEVEL 1: BALLOONS -->
+            <!-- LEVEL 1: BALLOONS (CÂU HỎI CHỮ - ĐÁP ÁN SỐ) -->
             <section id="level-1" class="screen hidden w-full flex flex-col items-center">
                 <h3 class="text-gray-600 mb-6 text-2xl font-bold text-center">Which balloon matches?</h3>
                 <div class="bg-blue-50 w-full p-6 rounded-[40px] mb-8 flex items-center justify-between border-4 border-blue-100 shadow-sm">
@@ -131,7 +131,7 @@
                     <button id="l3-audio-btn" class="bg-yellow-400 p-4 rounded-full shadow-lg btn-bounce shrink-0 text-xl">🔊</button>
                 </div>
 
-                <!-- Dãy nhân vật ngang cố định (không cần cuộn nhiều) -->
+                <!-- Dãy nhân vật ngang cố định hiển thị số thứ tự -->
                 <div class="w-full py-6 bg-slate-50 rounded-[35px] border-4 border-slate-100 shadow-inner flex flex-col items-center mb-8">
                     <div id="l3-line" class="flex px-2 gap-1.5 items-center w-full justify-center">
                         <div class="bg-gray-800 text-white p-1 rounded font-bold text-[10px] uppercase [writing-mode:vertical-lr] rotate-180">START</div>
@@ -302,27 +302,43 @@
             const grid = document.getElementById('l1-grid');
             grid.innerHTML = '';
             const options = [q.number, ...q.wrongNums].sort(() => Math.random() - 0.5);
-            const colors = ['#FF4757', '#2ED573', '#1E90FF', '#FFA502'];
+            // Sử dụng màu xanh dương đồng nhất cho tất cả bong bóng
+            const initialColor = '#1E90FF';
 
             options.forEach((opt, idx) => {
                 const b = document.createElement('button');
-                b.className = `balloon h-36 flex items-center justify-center text-white font-extrabold rounded-[45%] shadow-xl text-3xl btn-bounce`;
-                b.style.backgroundColor = colors[idx % colors.length];
-                b.style.color = colors[idx % colors.length]; 
+                b.className = `balloon h-36 flex items-center justify-center text-white font-extrabold rounded-[45%] shadow-xl text-3xl btn-bounce transition-colors duration-300`;
+                b.style.backgroundColor = initialColor;
+                b.style.color = initialColor; // Để tạo mũi nhọn cùng màu
                 b.innerHTML = `<span class="text-white">${opt}</span>`;
+                
                 b.onclick = () => {
+                    if (b.disabled) return;
                     if (opt === q.number) {
                         playSound('correct');
                         b.classList.add('animate-pop');
-                        b.style.backgroundColor = '#2ED573';
+                        b.style.backgroundColor = '#2ED573'; // Chuyển sang xanh lá
+                        b.style.color = '#2ED573';
+                        b.innerHTML = `<span class="text-white flex flex-col items-center"><span>${opt}</span><span class="text-sm font-bold mt-1">Correct</span></span>`;
                         score++;
                         currentQuestionIndex++;
                         updateHeader();
-                        setTimeout(loadL1Question, 800);
+                        // Disable tất cả trong giây lát
+                        document.querySelectorAll('#l1-grid button').forEach(btn => btn.disabled = true);
+                        setTimeout(loadL1Question, 1200);
                     } else {
                         playSound('wrong');
                         b.classList.add('animate-shake');
-                        setTimeout(() => b.classList.remove('animate-shake'), 300);
+                        const originalHtml = b.innerHTML;
+                        b.style.backgroundColor = '#FF4757'; // Chuyển sang đỏ
+                        b.style.color = '#FF4757';
+                        b.innerHTML = `<span class="text-white flex flex-col items-center"><span>${opt}</span><span class="text-sm font-bold mt-1">Try again</span></span>`;
+                        setTimeout(() => {
+                            b.classList.remove('animate-shake');
+                            b.style.backgroundColor = initialColor;
+                            b.style.color = initialColor;
+                            b.innerHTML = originalHtml;
+                        }, 1000);
                     }
                 };
                 grid.appendChild(b);
@@ -385,7 +401,7 @@
             return b;
         }
 
-        // --- LEVEL 3 (UPDATED) ---
+        // --- LEVEL 3 ---
         let l3Questions = [];
         let l3TargetIdx = -1;
 
@@ -403,7 +419,8 @@
                 const d = document.createElement('div');
                 d.id = `l3-char-${idx}`;
                 d.className = "bg-white p-1.5 rounded-xl border-2 border-gray-100 shadow-sm flex flex-col items-center gap-1 flex-1 max-w-[45px] transition-all";
-                d.innerHTML = `<div class="text-2xl sm:text-3xl">${char}</div><div class="num-indicator text-gray-300 font-bold text-[10px] sm:text-[12px]">?</div>`;
+                // Hiển thị số thứ tự (1st, 2nd,...) ngay dưới nhân vật
+                d.innerHTML = `<div class="text-2xl sm:text-3xl">${char}</div><div class="num-indicator text-gray-500 font-bold text-[10px] sm:text-[12px]">${getOrdinal(idx + 1)}</div>`;
                 line.appendChild(d);
             });
         }
@@ -446,10 +463,9 @@
                         playSound('correct');
                         btn.classList.add('bg-green-100', 'border-green-400', 'animate-pop');
                         
-                        // Cập nhật thẻ nhân vật trên bản đồ trực quan
+                        // Cập nhật thẻ nhân vật trên bản đồ trực quan (làm nổi bật kết quả đúng)
                         const charEl = document.getElementById(`l3-char-${l3TargetIdx}`);
                         charEl.classList.add('bg-green-50', 'border-green-400');
-                        charEl.querySelector('.num-indicator').textContent = getOrdinal(l3TargetIdx + 1);
                         charEl.querySelector('.num-indicator').className = "num-indicator text-green-600 font-bold text-[10px] sm:text-[12px]";
 
                         score++;
