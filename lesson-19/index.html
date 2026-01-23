@@ -33,7 +33,7 @@
             width: 100%;
             height: 25vh;
             background: #91e462;
-            border-top: 10px solid #7ed348;
+            border-top: 8px solid #7ed348;
             z-index: -1;
         }
 
@@ -63,35 +63,52 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 20px;
+            padding: 15px;
             z-index: 10;
         }
+
+        @media (min-width: 768px) {
+            .game-ui { padding: 25px; }
+        }
+
         .btn {
             pointer-events: auto;
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
         }
-        .btn:hover { transform: translateY(-5px) scale(1.05); }
-        .btn:active { transform: scale(0.9); }
+        .btn:hover { transform: translateY(-3px) scale(1.03); }
+        .btn:active { transform: scale(0.95); }
         
         .shape-option {
             background: white;
-            border-radius: 30px;
+            border-radius: 20px;
             padding: 10px;
-            box-shadow: 0 10px 0 #cbd5e0, 0 15px 30px rgba(0,0,0,0.1);
-            border: 6px solid #fff;
-            width: 160px;
-            height: 85px;
+            box-shadow: 0 6px 0 #cbd5e0, 0 10px 20px rgba(0,0,0,0.1);
+            border: 4px solid #fff;
+            width: 130px;
+            height: 70px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
             color: #2d3748;
             text-align: center;
-            font-size: 1.1rem;
+            font-size: 0.9rem;
         }
-        .shape-option.correct { border-color: #48bb78; background: #f0fff4; color: #276749; box-shadow: 0 10px 0 #38a169; }
-        .shape-option.wrong { border-color: #f56565; background: #fff5f5; color: #9b2c2c; box-shadow: 0 10px 0 #e53e3e; }
+
+        @media (min-width: 768px) {
+            .shape-option {
+                width: 170px;
+                height: 90px;
+                font-size: 1.2rem;
+                border-radius: 30px;
+                box-shadow: 0 10px 0 #cbd5e0, 0 15px 30px rgba(0,0,0,0.1);
+                border-width: 6px;
+            }
+        }
+
+        .shape-option.correct { border-color: #48bb78; background: #f0fff4; color: #276749; box-shadow: 0 8px 0 #38a169; }
+        .shape-option.wrong { border-color: #f56565; background: #fff5f5; color: #9b2c2c; box-shadow: 0 8px 0 #e53e3e; }
         
         @keyframes pop {
             0% { transform: scale(0); }
@@ -100,28 +117,89 @@
         }
         .pop-animation { animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
 
+        /* Level 2 Balanced Card Design */
         #real-world-card {
-            background: rgba(255, 255, 255, 0.98);
-            border-radius: 50px;
-            padding: 30px;
-            box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+            background: radial-gradient(circle at center, #ffffff 0%, #f7fafc 100%);
+            border-radius: 40px;
+            padding: 25px;
+            box-shadow: 0 20px 50px rgba(49, 130, 206, 0.2);
             border: 8px solid #fff;
             text-align: center;
-            max-width: 320px;
+            max-width: 280px;
+            width: 85%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: visible;
         }
+
+        #real-world-card::after {
+            content: '';
+            position: absolute;
+            inset: -12px;
+            border-radius: 50px;
+            border: 4px dashed rgba(255, 255, 255, 0.5);
+            pointer-events: none;
+        }
+
+        @media (min-width: 768px) {
+            #real-world-card {
+                border-radius: 60px;
+                padding: 40px;
+                max-width: 360px;
+            }
+        }
+
         #real-world-object {
-            font-size: 9rem;
-            line-height: 1.1;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.2));
+            font-size: 7rem;
+            line-height: 1;
+            filter: drop-shadow(0 15px 20px rgba(0,0,0,0.15));
+            animation: floating 3s ease-in-out infinite;
+            margin-bottom: 10px;
+        }
+
+        @media (min-width: 768px) {
+            #real-world-object { font-size: 10rem; }
+        }
+
+        @keyframes floating {
+            0%, 100% { transform: translateY(0) rotate(0); }
+            50% { transform: translateY(-15px) rotate(3deg); }
+        }
+
+        #object-label {
+            background: #ebf8ff;
+            color: #2b6cb0;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        @media (min-width: 768px) {
+            #object-label { font-size: 1.4rem; padding: 10px 30px; }
         }
 
         #question-box {
-            margin-top: 2vh;
+            margin-top: 1vh;
             background: #fff;
-            border-radius: 100px;
-            padding: 12px 50px;
-            border: 8px solid #3182ce;
-            box-shadow: 0 10px 0 #2c5282, 0 15px 30px rgba(0,0,0,0.1);
+            border-radius: 50px;
+            padding: 12px 25px;
+            border: 5px solid #3182ce;
+            box-shadow: 0 8px 0 #2c5282, 0 12px 20px rgba(0,0,0,0.1);
+        }
+
+        @media (min-width: 768px) {
+            #question-box {
+                border-radius: 100px;
+                padding: 15px 60px;
+                border-width: 8px;
+            }
         }
     </style>
 </head>
@@ -138,50 +216,50 @@
 
     <!-- Start Screen -->
     <div id="start-screen" class="fixed inset-0 z-50 flex items-center justify-center bg-blue-500 p-6 text-center">
-        <div class="bg-white p-12 rounded-[60px] shadow-2xl max-w-md w-full pop-animation border-[15px] border-yellow-400">
-            <div class="text-8xl mb-6">🥳⚽🎲</div>
-            <h1 class="text-4xl font-extrabold text-blue-600 mb-2">3D Shape Adventure</h1>
-            <p class="text-xl text-gray-500 mb-10 font-medium tracking-wide">Fun English Learning!</p>
-            <button onclick="startGame()" class="btn bg-orange-500 hover:bg-orange-600 text-white text-3xl font-black py-6 px-14 rounded-full shadow-[0_12px_0_#9c4221] active:shadow-none active:translate-y-2 uppercase tracking-tighter">Play!</button>
+        <div class="bg-white p-8 md:p-12 rounded-[40px] md:rounded-[60px] shadow-2xl max-w-md w-full pop-animation border-[10px] md:border-[15px] border-yellow-400">
+            <div class="text-6xl md:text-8xl mb-6">🥳⚽🎲</div>
+            <h1 class="text-3xl md:text-4xl font-extrabold text-blue-600 mb-2">3D Shape Adventure</h1>
+            <p class="text-lg md:text-xl text-gray-500 mb-10 font-medium tracking-wide">Fun English Learning!</p>
+            <button onclick="startGame()" class="btn bg-orange-500 hover:bg-orange-600 text-white text-2xl md:text-3xl font-black py-5 md:py-6 px-10 md:px-14 rounded-full shadow-[0_12px_0_#9c4221] active:shadow-none active:translate-y-2 uppercase tracking-tighter">Play!</button>
         </div>
     </div>
 
     <!-- Game UI -->
     <div class="game-ui">
-        <!-- Header -->
-        <div class="flex justify-between items-center pointer-events-none w-full">
-            <div class="bg-yellow-400 p-4 px-10 rounded-full shadow-lg pointer-events-auto border-4 border-white">
-                <span class="text-blue-800 font-black text-3xl tracking-tighter">⭐ <span id="score">0</span></span>
+        <!-- Header Left Side -->
+        <div class="flex flex-col gap-3 pointer-events-none items-start max-w-fit">
+            <div class="bg-yellow-400 p-3 px-6 md:px-10 rounded-full shadow-lg pointer-events-auto border-4 border-white">
+                <span class="text-blue-800 font-black text-xl md:text-3xl tracking-tighter">⭐ <span id="score">0</span></span>
             </div>
-            <div id="level-badge" class="bg-purple-600 p-4 px-10 rounded-full shadow-lg pointer-events-auto text-white font-black text-2xl border-4 border-white">
+            <div id="level-badge" class="bg-purple-600 p-3 px-6 md:px-10 rounded-full shadow-lg pointer-events-auto text-white font-black text-lg md:text-2xl border-4 border-white">
                 LEVEL <span id="level-num">1</span>
             </div>
         </div>
 
         <!-- Question Area -->
-        <div id="question-area" class="flex flex-col items-center pointer-events-none flex-grow">
+        <div id="question-area" class="flex flex-col items-center pointer-events-none flex-grow justify-start pt-2 md:pt-4">
             <div id="question-box" class="pointer-events-auto pop-animation">
-                <h3 class="text-2xl md:text-3xl font-black text-blue-600 uppercase tracking-widest">What is this 3D shape?</h3>
+                <h3 class="text-lg md:text-2xl font-black text-blue-600 uppercase tracking-widest text-center">What is this 3D shape?</h3>
             </div>
             
-            <!-- Level 2 Object Card -->
-            <div id="real-world-display" class="hidden pointer-events-none mt-16 flex flex-col items-center">
-                <div id="real-world-card" class="pop-animation">
+            <!-- Balanced Level 2 Card -->
+            <div id="real-world-display" class="hidden pointer-events-none mt-10 md:mt-16 flex flex-col items-center w-full">
+                <div id="real-world-card" class="pop-animation mx-auto">
                     <div id="real-world-object">🎲</div>
-                    <div id="object-label" class="mt-4 text-2xl font-black text-indigo-500 uppercase tracking-tighter">A Dice!</div>
+                    <div id="object-label">A Dice!</div>
                 </div>
             </div>
         </div>
 
         <!-- Options Container -->
-        <div id="options-container" class="flex flex-wrap justify-center gap-6 w-full max-w-5xl mx-auto pb-16 pointer-events-auto">
+        <div id="options-container" class="flex flex-wrap justify-center gap-3 md:gap-6 w-full max-w-5xl mx-auto pb-10 md:pb-14 pointer-events-auto px-4">
             <!-- Options injected by JS -->
         </div>
     </div>
 
     <!-- Feedback Overlay -->
     <div id="feedback" class="fixed inset-0 pointer-events-none flex items-center justify-center z-40 hidden">
-        <div id="feedback-content" class="text-[14rem] drop-shadow-2xl"></div>
+        <div id="feedback-content" class="text-[8rem] md:text-[14rem] drop-shadow-2xl"></div>
     </div>
 
     <script>
@@ -200,7 +278,7 @@
         const successSnd = () => { playTone(523, 'sine', 0.15); setTimeout(() => playTone(659, 'sine', 0.15), 100); setTimeout(() => playTone(783, 'sine', 0.4, 0.3), 200); };
         const failSnd = () => { playTone(220, 'triangle', 0.2); setTimeout(() => playTone(140, 'triangle', 0.4), 150); };
 
-        // --- FILTERED SHAPE DATA (Optimized Level 2 Items) ---
+        // --- DATA ---
         const shapes = [
             { id: 'cube', name: 'Cube', color: 0xFF5733, geometry: new THREE.BoxGeometry(2.5, 2.5, 2.5), objects: [{e:'🎲', l:'Dice'}, {e:'📦', l:'Box'}] },
             { id: 'cuboid', name: 'Cuboid', color: 0x33FFD1, geometry: new THREE.BoxGeometry(3.8, 2.2, 2), objects: [{e:'📕', l:'Closed Book'}, {e:'🧃', l:'Juice Box'}, {e:'🧱', l:'Brick'}] },
@@ -217,6 +295,7 @@
         let level1Shapes = [];
         let level2Shapes = [];
         let targetShape = null;
+        let hasMistake = false;
         let scene, camera, renderer, currentMesh;
 
         // --- FIREWORKS ---
@@ -273,14 +352,14 @@
             const light = new THREE.DirectionalLight(0xffffff, 0.6);
             light.position.set(5, 10, 5);
             scene.add(light);
-            camera.position.z = 8;
+            camera.position.z = 8.5;
             animate();
         }
 
         function animate() {
             requestAnimationFrame(animate);
             if (currentMesh) {
-                currentMesh.rotation.y += 0.02;
+                currentMesh.rotation.y += 0.015;
                 currentMesh.rotation.x += 0.005;
             }
             renderer.render(scene, camera);
@@ -302,6 +381,7 @@
         }
 
         function nextQuestion() {
+            hasMistake = false;
             if (level === 1 && questionIndex >= level1Shapes.length) {
                 level = 2; questionIndex = 0;
             } 
@@ -331,12 +411,20 @@
 
         function showMesh(shapeData) {
             if (currentMesh) scene.remove(currentMesh);
+            
             const material = new THREE.MeshPhongMaterial({ 
                 color: shapeData.color, 
                 shininess: 120,
-                specular: 0xffffff 
+                specular: 0xffffff
             });
+            
             currentMesh = new THREE.Mesh(shapeData.geometry, material);
+            
+            // EDGES FOR LEVEL 1
+            const edges = new THREE.EdgesGeometry(shapeData.geometry, 15);
+            const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 }));
+            currentMesh.add(line);
+            
             currentMesh.scale.set(0,0,0);
             scene.add(currentMesh);
             
@@ -368,9 +456,14 @@
         }
 
         function checkAnswer(selectedId, element) {
+            if (element.classList.contains('correct') || element.classList.contains('wrong')) return;
+
             if (selectedId === targetShape.id) {
-                score += 10;
-                document.getElementById('score').innerText = score;
+                if (!hasMistake) {
+                    score += 10;
+                    document.getElementById('score').innerText = score;
+                }
+                
                 element.classList.add('correct');
                 showFeedback('🌟');
                 successSnd();
@@ -383,10 +476,10 @@
                     nextQuestion();
                 }, 1500);
             } else {
+                hasMistake = true;
                 element.classList.add('wrong');
                 showFeedback('❌');
                 failSnd();
-                setTimeout(() => element.classList.remove('wrong'), 800);
             }
         }
 
@@ -405,15 +498,15 @@
 
             const startScreen = document.getElementById('start-screen');
             startScreen.innerHTML = `
-                <div class="bg-white p-12 rounded-[60px] shadow-2xl max-w-md w-full pop-animation relative z-[100] border-[15px] border-green-400">
-                    <div class="text-9xl mb-6">🏆</div>
-                    <h1 class="text-4xl font-extrabold text-blue-600 mb-2">Well Done!</h1>
-                    <p class="text-xl text-gray-500 mb-6 font-bold uppercase tracking-widest">You know your shapes!</p>
-                    <div class="bg-blue-50 p-8 rounded-[40px] mb-10 border-4 border-dashed border-blue-200">
-                        <div class="text-lg text-blue-400 font-black uppercase mb-1">Total Score</div>
-                        <div class="text-7xl font-black text-blue-600">${score}</div>
+                <div class="bg-white p-8 md:p-12 rounded-[40px] md:rounded-[60px] shadow-2xl max-w-md w-full pop-animation relative z-[100] border-[10px] md:border-[15px] border-green-400">
+                    <div class="text-7xl md:text-9xl mb-6 text-center">🏆</div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-blue-600 mb-2 text-center">Well Done!</h1>
+                    <p class="text-lg md:text-xl text-gray-500 mb-6 font-bold uppercase tracking-widest text-center">You know your shapes!</p>
+                    <div class="bg-blue-50 p-6 md:p-8 rounded-[30px] md:rounded-[40px] mb-10 border-4 border-dashed border-blue-200">
+                        <div class="text-md text-blue-400 font-black uppercase mb-1 text-center">Total Score</div>
+                        <div class="text-5xl md:text-7xl font-black text-blue-600 text-center">${score}</div>
                     </div>
-                    <button onclick="location.reload()" class="btn bg-orange-500 hover:bg-orange-600 text-white text-3xl font-black py-6 px-14 rounded-full shadow-[0_12px_0_#9c4221] active:shadow-none active:translate-y-2 uppercase tracking-tighter">Play Again!</button>
+                    <button onclick="location.reload()" class="btn bg-orange-500 hover:bg-orange-600 text-white text-2xl md:text-3xl font-black py-4 md:py-6 px-10 md:px-14 rounded-full shadow-[0_12px_0_#9c4221] active:shadow-none active:translate-y-2 uppercase tracking-tighter w-full">Play Again!</button>
                 </div>
             `;
             startScreen.classList.remove('hidden');
