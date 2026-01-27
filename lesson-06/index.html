@@ -1,621 +1,515 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="stylesheet" href="../assets/brand.css">
+    <link rel="stylesheet" href="../assets/brand.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Number Patterns Game</title> <!-- ĐỔI TÊN -->
-    <!-- Tải Tailwind CSS --><script src="https://cdn.tailwindcss.com"></script>
-    <!-- Tải Tone.js cho hiệu ứng âm thanh --><script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
-    <!-- Tải Google Font 'Nunito' cho giao diện đáng yêu --><link rel="preconnect" href="https://fonts.googleapis.com">
+    <title>Magical Number Adventure</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
     
     <style>
-        /* Tùy chỉnh font chữ và màu sắc cơ bản */
+        :root {
+            --primary: #6366f1;
+            --secondary: #ec4899;
+            --accent: #f59e0b;
+        }
+
         body {
-            font-family: 'Nunito', sans-serif;
-            /* Nền gradient tươi sáng hơn */
-            background: linear-gradient(135deg, #FFD700 0%, #FF69B4 100%); /* Vàng óng -> Hồng */
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(180deg, #87ceeb 0%, #e0f2fe 100%);
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        /* Moving clouds in background */
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50px;
+            opacity: 0.8;
+            z-index: -1;
+            animation: move-clouds 30s linear infinite;
+        }
+        .cloud::before, .cloud::after {
+            content: '';
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+        }
+        .cloud:nth-child(1) { width: 100px; height: 40px; top: 10%; left: -150px; animation-duration: 40s; }
+        .cloud:nth-child(2) { width: 150px; height: 60px; top: 25%; left: -200px; animation-duration: 55s; animation-delay: 5s; }
+        .cloud:nth-child(3) { width: 120px; height: 50px; top: 60%; left: -180px; animation-duration: 45s; animation-delay: 15s; }
+
+        @keyframes move-clouds {
+            from { transform: translateX(0); }
+            to { transform: translateX(calc(100vw + 300px)); }
         }
         
-        /* Hiệu ứng rung lắc khi trả lời sai */
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
             10%, 30%, 50%, 70%, 90% { transform: translateX(-10px); }
             20%, 40%, 60%, 80% { transform: translateX(10px); }
         }
-        .shake {
-            animation: shake 0.5s ease-in-out;
-        }
+        .shake { animation: shake 0.5s ease-in-out; }
 
-        /* Hiệu ứng nảy lên khi trả lời đúng */
-        @keyframes bounce-in {
-            0% { transform: scale(0.5); opacity: 0; }
-            50% { transform: scale(1.2); opacity: 1; }
-            100% { transform: scale(1); }
+        @keyframes bounce-pop {
+            0% { transform: scale(0.8); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
         }
-        .bounce-in {
-            animation: bounce-in 0.4s ease-out;
-        }
+        .bounce-pop { animation: bounce-pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
 
-        /* CSS cho các ô cửa may mắn */
-        .door-option {
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        .door-option:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-        
-        /* CSS cho hình dạng (bây giờ là số) */
-        .shape-container {
-            width: 80px;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        /* Hiệu ứng cho nút */
-        .btn-choice {
-            transition: all 0.2s ease;
-            /* Thêm box-shadow mặc định để tạo cảm giác nổi */
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-        .btn-choice:hover {
-            transform: scale(1.05);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        .btn-choice:active {
-            transform: scale(0.95);
-        }
-
-        /* CSS cho hoa giấy */
-        .confetti-container {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+        /* Glossy depth for number circles */
+        .number-glossy {
+            position: relative;
             overflow: hidden;
-            pointer-events: none;
-            z-index: 999;
         }
-        .confetti {
+        .number-glossy::after {
+            content: '';
             position: absolute;
-            width: 10px;
-            height: 10px;
+            top: 10%;
+            left: 10%;
+            width: 30%;
+            height: 30%;
+            background: rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+        }
+
+        /* 3D Candy Button effect */
+        .btn-candy {
+            position: relative;
+            transition: all 0.2s;
+            border-bottom: 6px solid rgba(0,0,0,0.15);
+        }
+        .btn-candy:hover { transform: translateY(-2px); border-bottom-width: 8px; }
+        .btn-candy:active { transform: translateY(4px); border-bottom-width: 2px; }
+
+        .pedestal {
+            background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
+            border-radius: 50%;
+        }
+
+        .treasure-item {
+            font-size: 4rem;
+            filter: drop-shadow(0 10px 10px rgba(0,0,0,0.1));
+            animation: treasure-float 3s ease-in-out infinite;
+        }
+        @keyframes treasure-float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-15px) scale(1.1); }
+        }
+
+        .particle {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            pointer-events: none;
             opacity: 0;
-            animation: fall 3s ease-out forwards, fade 3s linear forwards;
+            z-index: 100;
+        }
+
+        @keyframes firework-burst {
+            0% { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--tw-x), var(--tw-y)) scale(0); opacity: 0; }
         }
 
         @keyframes fall {
             0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
             100% { transform: translateY(100vh) rotate(720deg); opacity: 1; }
         }
-        
-        @keyframes fade {
-            50% { opacity: 1; }
-            100% { opacity: 0; }
-        }
-
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center p-4">
-<img src="../assets/logo-oodles-math.png" class="oodles-logo">
-    <div id="game-container" class="w-full max-w-4xl bg-white rounded-2xl shadow-2xl p-6 md:p-10 text-center relative overflow-hidden">
+    <img src="../assets/logo-oodles-math.png" class="oodles-logo">
+    <!-- Cloud Background -->
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+    <div class="cloud"></div>
+
+    <div id="game-container" class="w-full max-w-4xl bg-white/90 backdrop-blur-md rounded-[3rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.25)] p-6 md:p-10 text-center relative overflow-hidden border-8 border-white">
         
-        <!-- Tiêu đề và Thông tin trò chơi --><h1 class="text-3xl md:text-5xl font-black text-purple-600 mb-4">Number Patterns!</h1> <!-- ĐỔI TÊN -->
-        
-        <!-- Thanh tiến độ và Điểm số --><div class="flex justify-between items-center mb-4 text-lg md:text-xl font-bold">
-            <div id="progress-text" class="text-gray-600">Question: 1 / 15</div>
-            <div id="score" class="text-pink-500">Score: 0</div>
-        </div>
-        <div class="w-full bg-gray-200 rounded-full h-4 mb-6">
-            <div id="progress-bar" class="bg-green-400 h-4 rounded-full" style="width: 0%;"></div>
+        <!-- Start Screen -->
+        <div id="start-screen" class="absolute inset-0 bg-white z-50 flex flex-col items-center justify-center p-6 text-center">
+            <div class="treasure-item mb-4">🔢</div>
+            <h1 class="text-6xl md:text-7xl font-black text-indigo-600 mb-2 drop-shadow-sm">Number Fun!</h1>
+            <p class="text-2xl text-pink-400 mb-10 font-bold uppercase tracking-widest">A Magic Math Adventure</p>
+            <button id="start-button" class="btn-candy bg-indigo-500 text-white text-3xl font-black py-5 px-16 rounded-3xl shadow-lg hover:bg-indigo-600">
+                PLAY NOW!
+            </button>
         </div>
 
-        <!-- === BẮT ĐẦU PHẦN HTML BỊ THIẾU === --><!-- Khu vực Câu hỏi và Quy luật --><div id="question-area">
-            <div class="flex justify-center items-center gap-2 mb-6"> 
-                <h2 id="question-text" class="text-2xl md:text-3xl font-bold text-gray-800">What comes next?</h2>
-                <button id="replay-speech-button" class="text-blue-500 hover:text-blue-700 transition-colors p-1 rounded-full" aria-label="Replay question">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor">
+        <!-- Info Bar -->
+        <div class="flex justify-between items-center mb-6">
+            <div id="progress-text" class="bg-indigo-100 text-indigo-600 px-6 py-2 rounded-2xl font-black text-lg">LEVEL 1 / 15</div>
+            <div id="score" class="bg-pink-100 text-pink-500 px-6 py-2 rounded-2xl font-black text-lg">✨ TREASURES: 0</div>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="relative w-full h-8 mb-10 bg-slate-100 rounded-full p-1 shadow-inner">
+            <div id="progress-bar" class="h-full bg-gradient-to-r from-indigo-400 to-pink-400 rounded-full transition-all duration-700 flex justify-end items-center px-1" style="width: 0%;">
+                <div class="w-6 h-6 bg-white rounded-full shadow-md flex items-center justify-center text-xs">🚀</div>
+            </div>
+        </div>
+
+        <!-- Question Area -->
+        <div id="question-area">
+            <div class="flex justify-center items-center gap-4 mb-8"> 
+                <h2 id="question-text" class="text-4xl md:text-5xl font-black text-slate-800">What's next?</h2>
+                <button id="replay-speech-button" class="btn-candy bg-yellow-400 text-yellow-900 p-4 rounded-3xl shadow-md hover:scale-110 active:scale-95 transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>
                     </svg>
                 </button>
             </div>
-            <div id="pattern-display" class="flex flex-wrap justify-center items-center space-x-2 md:space-x-4 min-h-[100px] bg-indigo-100 rounded-lg p-4 mb-8">
-                <!-- Nội dung quy luật sẽ được JS chèn vào đây --></div>
-        </div>
-
-        <!-- Khu vực Lựa chọn --><div id="options-display" class="flex flex-wrap justify-center gap-4">
-            <!-- Các nút lựa chọn sẽ được JS chèn vào đây --></div>
-
-        <!-- Lớp phủ Phản hồi (Đúng/Sai) --><div id="feedback-modal" class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20 hidden">
-            <div id="feedback-content" class="text-7xl font-black text-white bounce-in">
-                <!-- Nội dung phản hồi (Correct! / Try Again!) --></div>
-        </div>
-        <!-- === KẾT THÚC PHẦN HTML BỊ THIẾU === --><!-- Lớp phủ cho Vòng quay may mắn --><div id="bonus-modal" class="absolute inset-0 bg-gradient-to-br from-purple-300 to-pink-400 flex flex-col items-center justify-center z-30 hidden p-4">
-            <h2 class="text-5xl md:text-6xl font-black text-white mb-4 animate-bounce">BONUS TIME!</h2>
-            <p class="text-2xl text-white mb-6">Choose a lucky door for extra points!</p>
             
-            <!-- THAY THẾ VÒNG QUAY BẰNG CÁC Ô CỬA --><div id="door-container" class="flex flex-wrap justify-center gap-6 md:gap-10 mb-6">
-                <!-- Các ô cửa sẽ được tạo bằng JS --></div>
-            
-            <!-- Xóa nút SPIN --><!-- <button id="spin-button" ...>SPIN!</button> --><p id="bonus-result" class="text-3xl text-white font-bold mt-6 hidden"></p>
+            <div id="pattern-display" class="flex flex-wrap justify-center items-center gap-4 min-h-[160px] bg-indigo-50/50 rounded-[3rem] p-10 mb-12 border-4 border-dashed border-indigo-200">
+                <!-- JS Inject -->
+            </div>
         </div>
 
-        <!-- Lớp phủ Kết thúc trò chơi --><div id="game-over-modal" class="absolute inset-0 bg-gradient-to-br from-green-300 to-blue-400 flex flex-col items-center justify-center z-40 hidden p-4">
-            <h2 class="text-6xl md:text-8xl font-black text-white mb-4 bounce-in">Great Job!</h2>
-            <p class="text-3xl text-white mb-6">You finished the game!</p>
-            <p id="final-score" class="text-4xl text-yellow-300 font-bold mb-8">Final Score: 150</p>
-            <button id="play-again-button" class="btn-choice bg-white text-purple-600 text-3xl font-bold py-4 px-10 rounded-full shadow-lg hover:bg-gray-100">
-                Play Again
+        <!-- Options Area -->
+        <div id="options-display" class="flex flex-wrap justify-center gap-8">
+            <!-- JS Inject -->
+        </div>
+
+        <!-- Feedback Modal -->
+        <div id="feedback-modal" class="absolute inset-0 bg-white/95 flex items-center justify-center z-20 hidden">
+            <div id="feedback-content" class="text-7xl md:text-9xl font-black drop-shadow-lg scale-0 transition-transform duration-500">
+                GREAT!
+            </div>
+        </div>
+
+        <!-- Bonus Modal -->
+        <div id="bonus-modal" class="absolute inset-0 bg-gradient-to-br from-indigo-500/95 to-purple-600/95 flex flex-col items-center justify-center z-30 hidden p-6">
+            <h2 class="text-5xl md:text-7xl font-black text-white mb-4 animate-bounce drop-shadow-md">MAGIC CHEST!</h2>
+            <p class="text-2xl text-white/90 font-bold mb-12">Pick a box to find a surprise!</p>
+            <div id="door-container" class="flex flex-wrap justify-center gap-8 md:gap-16">
+                <!-- Chests -->
+            </div>
+            <p id="bonus-result" class="text-4xl text-yellow-300 font-black mt-12 hidden"></p>
+        </div>
+
+        <!-- Game Over Modal -->
+        <div id="game-over-modal" class="absolute inset-0 bg-indigo-600 flex flex-col items-center justify-center z-40 hidden p-6 text-white">
+            <div class="treasure-item mb-8">🏆</div>
+            <h2 class="text-6xl md:text-9xl font-black mb-4 drop-shadow-lg">SUPER STAR!</h2>
+            <p class="text-3xl font-bold mb-4">All patterns are solved!</p>
+            <p id="final-score" class="text-5xl text-yellow-300 font-black mb-14">Treasures: 0</p>
+            <button id="play-again-button" class="btn-candy bg-white text-indigo-600 text-3xl font-black py-6 px-16 rounded-full shadow-2xl hover:scale-105 active:scale-95">
+                PLAY AGAIN!
             </button>
         </div>
 
-        <!-- Thêm container cho hoa giấy --><div id="confetti-container" class="absolute inset-0 pointer-events-none z-50"></div>
+        <div id="fx-container" class="absolute inset-0 pointer-events-none z-50"></div>
     </div>
 
     <script>
-        // --- Định nghĩa các phần tử DOM ---
-        const gameContainer = document.getElementById('game-container');
+        // --- Number Definitions ---
+        const numbers = {
+            N1: { value: 1, color: 'bg-red-500' },
+            N2: { value: 2, color: 'bg-blue-500' },
+            N3: { value: 3, color: 'bg-green-500' },
+            N4: { value: 4, color: 'bg-yellow-500' },
+            N5: { value: 5, color: 'bg-pink-500' },
+            N6: { value: 6, color: 'bg-purple-500' },
+            N7: { value: 7, color: 'bg-orange-500' },
+            N8: { value: 8, color: 'bg-teal-500' },
+            N9: { value: 9, color: 'bg-indigo-500' }
+        };
+
+        const treasures = [
+            { icon: "🧸", name: "Teddy" },
+            { icon: "🌈", name: "Rainbow" },
+            { icon: "🦄", name: "Unicorn" },
+            { icon: "🍭", name: "Candy" },
+            { icon: "🚀", name: "Rocket" },
+            { icon: "🍦", name: "Ice Cream" },
+            { icon: "💎", name: "Diamond" },
+            { icon: "🐱", name: "Kitty" },
+            { icon: "🎨", name: "Art" },
+            { icon: "🔔", name: "Magic Bell" }
+        ];
+
+        // 15 Number Patterns for age 4-6
+        const questions = [
+            { pattern: [numbers.N1, numbers.N2, numbers.N1, numbers.N2], options: [numbers.N1, numbers.N3, numbers.N2], correct: numbers.N1 },
+            { pattern: [numbers.N3, numbers.N3, numbers.N4, numbers.N4], options: [numbers.N4, numbers.N3, numbers.N1], correct: numbers.N3 },
+            { pattern: [numbers.N1, numbers.N2, numbers.N3, numbers.N1, numbers.N2], options: [numbers.N1, numbers.N2, numbers.N3], correct: numbers.N3 },
+            { pattern: [numbers.N5, numbers.N5, numbers.N8, numbers.N5, numbers.N5], options: [numbers.N5, numbers.N8, numbers.N1], correct: numbers.N8 },
+            { pattern: [numbers.N2, numbers.N6, numbers.N6, numbers.N2, numbers.N6], options: [numbers.N6, numbers.N2, numbers.N5], correct: numbers.N6 },
+            { pattern: [numbers.N7, numbers.N9, numbers.N7, numbers.N9], options: [numbers.N7, numbers.N1, numbers.N9], correct: numbers.N7 },
+            { pattern: [numbers.N4, numbers.N4, numbers.N1, numbers.N4, numbers.N4], options: [numbers.N1, numbers.N4, numbers.N7], correct: numbers.N1 },
+            { pattern: [numbers.N3, numbers.N1, numbers.N1, numbers.N3, numbers.N1], options: [numbers.N1, numbers.N3, numbers.N5], correct: numbers.N1 },
+            // Đã sửa câu số 9 thành quy luật 2, 5, 2, 5
+            { pattern: [numbers.N2, numbers.N5, numbers.N2, numbers.N5], options: [numbers.N2, numbers.N5, numbers.N8], correct: numbers.N2 },
+            { pattern: [numbers.N6, numbers.N7, numbers.N8, numbers.N6, numbers.N7], options: [numbers.N6, numbers.N7, numbers.N8], correct: numbers.N8 },
+            { pattern: [numbers.N1, numbers.N5, numbers.N1, numbers.N5], options: [numbers.N1, numbers.N5, numbers.N9], correct: numbers.N1 },
+            { pattern: [numbers.N8, numbers.N8, numbers.N9, numbers.N9], options: [numbers.N8, numbers.N9, numbers.N4], correct: numbers.N8 },
+            { pattern: [numbers.N4, numbers.N5, numbers.N6, numbers.N4, numbers.N5], options: [numbers.N4, numbers.N5, numbers.N6], correct: numbers.N6 },
+            { pattern: [numbers.N2, numbers.N3, numbers.N2, numbers.N3], options: [numbers.N2, numbers.N3, numbers.N1], correct: numbers.N2 },
+            { pattern: [numbers.N7, numbers.N7, numbers.N2, numbers.N7, numbers.N7], options: [numbers.N2, numbers.N7, numbers.N9], correct: numbers.N2 }
+        ];
+
+        let score = 0;
+        let currentQuestionIndex = 0;
+        let isChecking = false;
+        let gameOverLoop = null;
+        const totalQuestions = questions.length;
+
+        // Audio initialization
+        let correctSynth, incorrectSynth, bonusSynth, clickSynth;
+        function initAudio() {
+            if (correctSynth) return;
+            correctSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+            incorrectSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+            bonusSynth = new Tone.PolySynth(Tone.Synth).toDestination();
+            clickSynth = new Tone.MembraneSynth().toDestination();
+            Tone.start();
+        }
+
+        const speechSynth = window.speechSynthesis;
+        function speak(text) {
+            speechSynth.cancel();
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'en-US';
+            u.rate = 1.0;
+            u.pitch = 1.3;
+            speechSynth.speak(u);
+        }
+
+        // --- DOM Elements ---
+        const startScreen = document.getElementById('start-screen');
+        const startBtn = document.getElementById('start-button');
+        const patternDisplay = document.getElementById('pattern-display');
+        const optionsDisplay = document.getElementById('options-display');
+        const feedbackModal = document.getElementById('feedback-modal');
+        const feedbackContent = document.getElementById('feedback-content');
+        const bonusModal = document.getElementById('bonus-modal');
+        const gameOverModal = document.getElementById('game-over-modal');
         const scoreEl = document.getElementById('score');
         const progressTextEl = document.getElementById('progress-text');
         const progressBarEl = document.getElementById('progress-bar');
-        const questionTextEl = document.getElementById('question-text');
-        const patternDisplayEl = document.getElementById('pattern-display');
-        const optionsDisplayEl = document.getElementById('options-display');
-        
-        const feedbackModalEl = document.getElementById('feedback-modal');
-        const feedbackContentEl = document.getElementById('feedback-content');
+        const doorContainer = document.getElementById('door-container');
+        const fxContainer = document.getElementById('fx-container');
 
-        const bonusModalEl = document.getElementById('bonus-modal'); // Đổi tên từ wheelModalEl
-        const doorContainerEl = document.getElementById('door-container'); // Thêm container cửa
-        // Xóa các biến của vòng quay
-        // const wheelEl = document.getElementById('wheel');
-        // const spinButtonEl = document.getElementById('spin-button');
-        const bonusResultEl = document.getElementById('bonus-result'); // Đổi tên từ wheelResultEl
-
-        const gameOverModalEl = document.getElementById('game-over-modal');
-        const finalScoreEl = document.getElementById('final-score');
-        const playAgainButtonEl = document.getElementById('play-again-button');
-        const replaySpeechButtonEl = document.getElementById('replay-speech-button');
-        const confettiContainerEl = document.getElementById('confetti-container');
-
-        // --- Cấu hình Âm thanh ---
-        let correctSynth, incorrectSynth, bonusSynth, clickSynth, gameEndSynth; // Thêm clickSynth và gameEndSynth
-        
-        function initAudio() {
-            if (!correctSynth) {
-                // Âm thanh đúng: Nốt C Major Chord
-                correctSynth = new Tone.PolySynth(Tone.Synth, {
-                    oscillator: { type: 'sine' },
-                    envelope: { attack: 0.05, decay: 0.1, sustain: 0.2, release: 0.3 }
-                }).toDestination();
-                
-                // Âm thanh sai: Nốt giảm dần
-                incorrectSynth = new Tone.PolySynth(Tone.Synth, {
-                    oscillator: { type: 'square' },
-                    envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.2 }
-                }).toDestination();
-
-                // Âm thanh thưởng: Nghe vui tai hơn
-                bonusSynth = new Tone.PolySynth(Tone.Synth, {
-                    oscillator: { type: 'triangle' },
-                    envelope: { attack: 0.02, decay: 0.1, sustain: 0.2, release: 0.5 }
-                }).toDestination();
-                
-                // Âm thanh nhấp chuột nhẹ nhàng
-                clickSynth = new Tone.MembraneSynth({
-                    pitchDecay: 0.02,
-                    envelope: { attack: 0.001, decay: 0.1, sustain: 0 }
-                }).toDestination();
-
-                // Âm thanh hoàn thành game vui nhộn
-                gameEndSynth = new Tone.Sampler({
-                    urls: {
-                        'C4': 'https://tonejs.github.io/audio/salamander/C4.mp3', // Có thể dùng âm thanh tươi vui hơn nếu có
-                    },
-                    onload: () => { console.log('Game end sound loaded'); }
-                }).toDestination(); // Thay bằng một âm thanh vui nhộn hơn nếu có
-            }
-        }
-        
-        document.body.addEventListener('click', initAudio, { once: true });
-
-
-        // --- Cấu hình Giọng đọc (TTS) ---
-        const speechSynth = window.speechSynthesis;
-        function speak(text, lang = 'en-US') {
-            speechSynth.cancel();
-            const utterance = new SpeechSynthesisUtterance(text);
-            utterance.lang = lang;
-            utterance.rate = 0.9;
-            utterance.pitch = 1.2;
-            speechSynth.speak(utterance);
-        }
-
-        // --- Hàm Hoa giấy ---
-        function showConfetti() {
-            confettiContainerEl.innerHTML = '';
-            const colors = ['#f87171', '#fbbf24', '#34d399', '#60a5fa', '#ec4899', '#a78bfa']; // Cập nhật màu
-            for (let i = 0; i < 100; i++) {
-                const confetti = document.createElement('div');
-                confetti.classList.add('confetti');
-                confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                confetti.style.left = `${Math.random() * 100}vw`;
-                confetti.style.animationDelay = `${Math.random() * 0.5}s`;
-                confetti.style.animationDuration = `${Math.random() * 2 + 3}s`;
-                
-                if (i % 2 === 0) {
-                    confetti.style.width = '10px';
-                    confetti.style.height = '10px';
-                } else {
-                    confetti.style.width = '8px';
-                    confetti.style.height = '16px';
-                }
-
-                confettiContainerEl.appendChild(confetti);
-
-                setTimeout(() => {
-                    if (confetti) confetti.remove();
-                }, 5000);
+        // --- Visual Effects ---
+        function createConfetti() {
+            const colors = ['#818cf8', '#f472b6', '#34d399', '#fbbf24', '#a78bfa'];
+            for (let i = 0; i < 60; i++) {
+                const c = document.createElement('div');
+                c.className = 'particle';
+                c.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                c.style.left = `${Math.random() * 100}%`;
+                c.style.top = `-20px`;
+                c.style.animation = `fall ${2 + Math.random() * 2}s ease-out forwards`;
+                fxContainer.appendChild(c);
+                setTimeout(() => c.remove(), 4000);
             }
         }
 
-        // --- Dữ liệu Hình dạng (ĐÃ THAY BẰNG SỐ) ---
-        const numbers = {
-            NUM_1: { type: 'number', value: 1, color: 'text-red-500' },
-            NUM_2: { type: 'number', value: 2, color: 'text-blue-500' },
-            NUM_3: { type: 'number', value: 3, color: 'text-green-500' },
-            NUM_4: { type: 'number', value: 4, color: 'text-yellow-500' },
-            NUM_5: { type: 'number', value: 5, color: 'text-purple-500' },
-            NUM_6: { type: 'number', value: 6, color: 'text-orange-500' },
-            NUM_7: { type: 'number', value: 7, color: 'text-pink-500' },
-            NUM_8: { type: 'number', value: 8, color: 'text-teal-500' },
-            NUM_9: { type: 'number', value: 9, color: 'text-indigo-500' },
-        };
-
-        // --- Ngân hàng Câu hỏi (ĐÃ THAY BẰNG SỐ) ---
-        const questions = [
-            // ABAB
-            {
-                pattern: [numbers.NUM_1, numbers.NUM_2, numbers.NUM_1, numbers.NUM_2],
-                options: [numbers.NUM_1, numbers.NUM_3, numbers.NUM_2],
-                correct: numbers.NUM_1
-            },
-            {
-                pattern: [numbers.NUM_3, numbers.NUM_4, numbers.NUM_3, numbers.NUM_4],
-                options: [numbers.NUM_4, numbers.NUM_5, numbers.NUM_3],
-                correct: numbers.NUM_3
-            },
-            {
-                pattern: [numbers.NUM_5, numbers.NUM_1, numbers.NUM_5, numbers.NUM_1],
-                options: [numbers.NUM_1, numbers.NUM_5, numbers.NUM_2],
-                correct: numbers.NUM_5
-            },
-            // AABB
-            {
-                pattern: [numbers.NUM_2, numbers.NUM_2, numbers.NUM_4, numbers.NUM_4],
-                options: [numbers.NUM_4, numbers.NUM_2, numbers.NUM_6],
-                correct: numbers.NUM_2
-            },
-            {
-                pattern: [numbers.NUM_6, numbers.NUM_6, numbers.NUM_7, numbers.NUM_7],
-                options: [numbers.NUM_6, numbers.NUM_7, numbers.NUM_8],
-                correct: numbers.NUM_6
-            },
-            {
-                pattern: [numbers.NUM_8, numbers.NUM_8, numbers.NUM_1, numbers.NUM_1],
-                options: [numbers.NUM_1, numbers.NUM_9, numbers.NUM_8],
-                correct: numbers.NUM_8
-            },
-            // ABCABC
-            {
-                pattern: [numbers.NUM_1, numbers.NUM_2, numbers.NUM_3, numbers.NUM_1, numbers.NUM_2],
-                options: [numbers.NUM_1, numbers.NUM_2, numbers.NUM_3],
-                correct: numbers.NUM_3
-            },
-            {
-                pattern: [numbers.NUM_4, numbers.NUM_5, numbers.NUM_6, numbers.NUM_4, numbers.NUM_5],
-                options: [numbers.NUM_6, numbers.NUM_5, numbers.NUM_7],
-                correct: numbers.NUM_6
-            },
-            {
-                pattern: [numbers.NUM_7, numbers.NUM_8, numbers.NUM_9, numbers.NUM_7, numbers.NUM_8],
-                options: [numbers.NUM_8, numbers.NUM_9, numbers.NUM_1],
-                correct: numbers.NUM_9
-            },
-            // AABAAB
-            {
-                pattern: [numbers.NUM_1, numbers.NUM_1, numbers.NUM_2, numbers.NUM_1, numbers.NUM_1],
-                options: [numbers.NUM_1, numbers.NUM_2, numbers.NUM_3],
-                correct: numbers.NUM_2
-            },
-            {
-                pattern: [numbers.NUM_5, numbers.NUM_5, numbers.NUM_3, numbers.NUM_5, numbers.NUM_5],
-                options: [numbers.NUM_5, numbers.NUM_4, numbers.NUM_3],
-                correct: numbers.NUM_3
-            },
-            {
-                pattern: [numbers.NUM_9, numbers.NUM_9, numbers.NUM_8, numbers.NUM_9, numbers.NUM_9],
-                options: [numbers.NUM_8, numbers.NUM_9, numbers.NUM_7],
-                correct: numbers.NUM_8
-            },
-            // ABBABB
-            {
-                pattern: [numbers.NUM_2, numbers.NUM_3, numbers.NUM_3, numbers.NUM_2, numbers.NUM_3],
-                options: [numbers.NUM_2, numbers.NUM_3, numbers.NUM_4],
-                correct: numbers.NUM_3
-            },
-            {
-                pattern: [numbers.NUM_4, numbers.NUM_1, numbers.NUM_1, numbers.NUM_4, numbers.NUM_1],
-                options: [numbers.NUM_1, numbers.NUM_4, numbers.NUM_5],
-                correct: numbers.NUM_1
-            },
-            {
-                pattern: [numbers.NUM_6, numbers.NUM_8, numbers.NUM_8, numbers.NUM_6, numbers.NUM_8],
-                options: [numbers.NUM_6, numbers.NUM_7, numbers.NUM_8],
-                correct: numbers.NUM_8
+        function launchFirework() {
+            const colors = ['#FF0000', '#00FF00', '#0000FF', '#FFFF00', '#FF00FF', '#00FFFF', '#FFA500'];
+            const x = 10 + Math.random() * 80;
+            const y = 20 + Math.random() * 60;
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            for (let i = 0; i < 40; i++) {
+                const p = document.createElement('div');
+                const angle = (Math.PI * 2 * i) / 40;
+                const distance = 80 + Math.random() * 200;
+                const tx = Math.cos(angle) * distance;
+                const ty = Math.sin(angle) * distance;
+                p.className = 'particle';
+                p.style.backgroundColor = color;
+                p.style.left = `${x}%`;
+                p.style.top = `${y}%`;
+                p.style.setProperty('--tw-x', `${tx}px`);
+                p.style.setProperty('--tw-y', `${ty}px`);
+                p.style.animation = `firework-burst 1.2s cubic-bezier(0.1, 0.5, 0.5, 1) forwards`;
+                fxContainer.appendChild(p);
+                setTimeout(() => p.remove(), 1200);
             }
-        ];
-
-        // --- Trạng thái Trò chơi ---
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let isChecking = false;
-        let currentQuestionText = "What comes next?";
-
-        // --- Hàm Trợ giúp: Lấy HTML cho một Hình dạng/Số (ĐÃ CẬP NHẬT) ---
-        function getItemHtml(item) {
-            // Xóa khối if (item.type === 'shape') vì không còn hình dạng
-            if (item.type === 'number') {
-                return `<div class="shape-container"><div class="text-6xl font-black ${item.color}" style="text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">${item.value}</div></div>`;
-            }
-            return ''; // Fallback
         }
-        
-        // --- Hàm Trợ giúp: Lấy HTML cho Nút Lựa chọn ---
-        function getOptionButtonHtml(item) {
-            const itemContent = getItemHtml(item); // Sẽ tự động chỉ lấy các số
+
+        // --- Render Number Item ---
+        function getNumberHtml(item, isLarge = true) {
+            const size = isLarge ? "w-20 h-20 text-4xl" : "w-16 h-16 text-3xl";
             return `
-                <button class="btn-choice bg-white rounded-2xl p-4 shadow-lg" data-value='${JSON.stringify(item)}' aria-label="Number ${item.value || item.type}">
-                    ${itemContent}
-                </button>
-            `;
-        }
-
-        // --- Logic Trò chơi Chính ---
-        function startGame() {
-            currentQuestionIndex = 0;
-            score = 0;
-            isChecking = false;
-            gameOverModalEl.classList.add('hidden');
-            bonusModalEl.classList.add('hidden'); 
-            loadQuestion(currentQuestionIndex);
-            updateUI();
-        }
-
-        function loadQuestion(index) {
-            if (index >= questions.length) {
-                showGameEnd();
-                return;
-            }
-
-            isChecking = false;
-            const q = questions[index];
-
-            patternDisplayEl.innerHTML = '';
-            q.pattern.forEach(item => {
-                patternDisplayEl.innerHTML += getItemHtml(item);
-            });
-            patternDisplayEl.innerHTML += `
-                <div class="shape-container">
-                    <div class="w-16 h-16 bg-gray-300 rounded-full flex items-center justify-center text-4xl font-black text-white shadow-md">?</div>
+                <div class="shape-container pedestal flex items-center justify-center p-2">
+                    <div class="${size} ${item.color} rounded-full flex items-center justify-center font-black text-white shadow-[inset_-4px_-4px_8px_rgba(0,0,0,0.3)] number-glossy border-4 border-white/30">
+                        ${item.value}
+                    </div>
                 </div>
             `;
+        }
 
-            optionsDisplayEl.innerHTML = '';
-            const shuffledOptions = [...q.options].sort(() => Math.random() - 0.5);
-            shuffledOptions.forEach(option => {
-                optionsDisplayEl.innerHTML += getOptionButtonHtml(option);
+        // --- Game Logic ---
+        function loadQuestion() {
+            if (currentQuestionIndex >= totalQuestions) {
+                showGameOver();
+                return;
+            }
+            isChecking = false;
+            const q = questions[currentQuestionIndex];
+            
+            patternDisplay.innerHTML = '';
+            q.pattern.forEach((item, idx) => {
+                const el = document.createElement('div');
+                el.className = 'bounce-pop';
+                el.style.animationDelay = `${idx * 0.1}s`;
+                el.innerHTML = getNumberHtml(item);
+                patternDisplay.appendChild(el);
             });
+            
+            const questionMark = document.createElement('div');
+            questionMark.className = 'bounce-pop';
+            questionMark.style.animationDelay = `${q.pattern.length * 0.1}s`;
+            questionMark.innerHTML = `
+                <div class="shape-container pedestal flex items-center justify-center p-2">
+                    <div class="w-20 h-20 bg-white border-4 border-dashed border-indigo-200 rounded-full flex items-center justify-center text-5xl font-black text-indigo-100">?</div>
+                </div>
+            `;
+            patternDisplay.appendChild(questionMark);
 
-            optionsDisplayEl.querySelectorAll('.btn-choice').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    handleOptionClick(e);
-                });
+            optionsDisplay.innerHTML = '';
+            [...q.options].sort(() => Math.random() - 0.5).forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-candy bg-white rounded-[2.5rem] p-8 shadow-xl border-4 border-slate-50 hover:bg-slate-50 active:bg-indigo-50 transition-colors';
+                btn.innerHTML = getNumberHtml(opt, false);
+                btn.onclick = () => handleChoice(opt, btn);
+                optionsDisplay.appendChild(btn);
             });
 
             updateUI();
-            
-            setTimeout(() => {
-                speak(currentQuestionText);
-            }, 300);
         }
-        
-        function handleOptionClick(e) {
+
+        function handleChoice(selected, btn) {
             if (isChecking) return;
             isChecking = true;
             initAudio();
-            clickSynth.triggerAttackRelease('C4', '8n'); 
+            clickSynth.triggerAttackRelease('C4', '8n');
 
-            const selectedValue = JSON.parse(e.currentTarget.dataset.value);
-            const correctValue = questions[currentQuestionIndex].correct;
+            const correct = questions[currentQuestionIndex].correct;
+            const isMatch = selected.value === correct.value;
 
-            const isCorrect = JSON.stringify(selectedValue) === JSON.stringify(correctValue);
-
-            if (isCorrect) {
-                handleCorrectAnswer();
+            if (isMatch) {
+                correctSynth.triggerAttackRelease(["C5", "E5", "G5"], "0.3");
+                createConfetti();
+                feedbackContent.textContent = "GREAT!";
+                feedbackContent.className = "text-8xl md:text-9xl font-black text-green-500 drop-shadow-lg transform scale-100 transition-transform duration-500";
+                feedbackModal.classList.remove('hidden');
+                setTimeout(() => {
+                    feedbackModal.classList.add('hidden');
+                    feedbackContent.classList.add('scale-0');
+                    showBonus();
+                }, 1200);
             } else {
-                handleIncorrectAnswer(e.currentTarget);
+                incorrectSynth.triggerAttackRelease(["C4", "B3"], "0.3");
+                document.getElementById('game-container').classList.add('shake');
+                btn.classList.add('bg-red-50', 'border-red-100');
+                
+                feedbackContent.textContent = "TRY AGAIN!";
+                feedbackContent.className = "text-8xl md:text-9xl font-black text-red-500 drop-shadow-lg transform scale-100 transition-transform duration-500";
+                feedbackModal.classList.remove('hidden');
+
+                setTimeout(() => {
+                    document.getElementById('game-container').classList.remove('shake');
+                    btn.classList.remove('bg-red-50', 'border-red-100');
+                    feedbackModal.classList.add('hidden');
+                    feedbackContent.classList.add('scale-0');
+                    isChecking = false;
+                }, 1000);
             }
         }
 
-        function handleCorrectAnswer() {
-            showConfetti();
-            correctSynth.triggerAttackRelease(["C5", "E5", "G5"], "0.2", Tone.now()); // Phát hợp âm C major
+        function showBonus() {
+            bonusModal.classList.remove('hidden');
+            document.getElementById('bonus-result').classList.add('hidden');
+            
+            const pool = [...treasures].sort(() => Math.random() - 0.5).slice(0, 3);
+            doorContainer.innerHTML = '';
+            
+            pool.forEach((treasure, idx) => {
+                const chest = document.createElement('button');
+                chest.className = 'btn-candy w-40 h-40 bg-white/20 backdrop-blur-md rounded-[2.5rem] border-4 border-white shadow-2xl flex items-center justify-center text-7xl hover:bg-white/40 active:scale-110 transition-all';
+                chest.innerHTML = `🎁`;
+                chest.onclick = () => {
+                    if (chest.disabled) return;
+                    bonusSynth.triggerAttackRelease("G4", "0.2");
+                    
+                    const allChests = doorContainer.querySelectorAll('button');
+                    allChests.forEach((c, i) => {
+                        c.disabled = true;
+                        const item = pool[i];
+                        c.innerHTML = item.icon;
+                        if (item === treasure) {
+                            c.classList.add('scale-125', 'bg-white', 'rotate-6');
+                        } else {
+                            c.classList.add('opacity-40', 'scale-90');
+                        }
+                    });
 
-            feedbackContentEl.textContent = 'Correct!';
-            feedbackContentEl.className = 'text-7xl font-black text-green-400 bounce-in';
-            feedbackModalEl.classList.remove('hidden');
+                    score++;
+                    updateUI();
+                    document.getElementById('bonus-result').textContent = `You found a ${treasure.name}!`;
+                    document.getElementById('bonus-result').classList.remove('hidden');
 
-            setTimeout(() => {
-                feedbackModalEl.classList.add('hidden');
-                showBonusRound(); // Đổi tên hàm
-            }, 1200);
-        }
-
-        function handleIncorrectAnswer(buttonEl) {
-            incorrectSynth.triggerAttackRelease(["C4", "B3"], "0.3", Tone.now()); // Nốt giảm dần
-
-            gameContainer.classList.add('shake');
-            buttonEl.classList.add('bg-red-200');
-
-            speak("Try again!");
-
-            setTimeout(() => {
-                gameContainer.classList.remove('shake');
-                buttonEl.classList.remove('bg-red-200');
-                isChecking = false;
-            }, 600);
+                    setTimeout(() => {
+                        bonusModal.classList.add('hidden');
+                        currentQuestionIndex++;
+                        loadQuestion();
+                    }, 2500);
+                };
+                doorContainer.appendChild(chest);
+            });
         }
 
         function updateUI() {
-            scoreEl.textContent = `Score: ${score}`;
-            
-            progressTextEl.textContent = `Question: ${Math.min(currentQuestionIndex + 1, questions.length)} / ${questions.length}`;
-            const progressPercent = (currentQuestionIndex / questions.length) * 100;
-            progressBarEl.style.width = `${progressPercent}%`;
-        }
-        
-        // --- LOGIC Ô CỬA MAY MẮN MỚI ---
-        const doorPrizes = [1, 3, 5]; // Các giải thưởng điểm
-        let isBonusChecking = false; // Cờ để ngăn nhấp nhiều lần vào cửa
-
-        function showBonusRound() { // Đổi tên từ showBonusWheel
-            isBonusChecking = false;
-            bonusModalEl.classList.remove('hidden');
-            bonusResultEl.classList.add('hidden');
-            
-            // Xáo trộn giải thưởng
-            const shuffledPrizes = [...doorPrizes].sort(() => Math.random() - 0.5);
-            
-            doorContainerEl.innerHTML = ''; // Xóa các cửa cũ
-            
-            // Tạo 3 ô cửa
-            shuffledPrizes.forEach((prize) => {
-                const door = document.createElement('button');
-                door.className = 'door-option w-32 h-44 md:w-40 md:h-56 bg-gradient-to-br from-yellow-300 to-orange-400 rounded-lg shadow-xl flex flex-col items-center justify-center text-orange-900 transition-all duration-300 hover:scale-105 hover:shadow-2xl relative overflow-hidden'; // Màu sắc tươi hơn
-                // Cập nhật SVG để trông giống cánh cửa đơn giản hơn
-                door.innerHTML = `
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-24 h-24 mb-2" viewBox="0 0 24 24" fill="currentColor" style="color: #6a0572;">
-                        <path d="M12 3c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h6c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-6zm0 2h6v14h-6V5z"/>
-                        <circle cx="15" cy="12" r="1.5" style="fill: #2c3e50;"/>
-                        <path d="M4 11h2v2H4z" style="fill: #8e44ad;"/>
-                    </svg>
-                    <span class="text-xl font-bold text-purple-800">Door!</span>
-                    `; // Thêm chữ "Door!"
-                door.dataset.prize = prize;
-                
-                door.addEventListener('click', handleDoorClick, { once: true }); // Chỉ cho nhấp một lần
-                doorContainerEl.appendChild(door);
-            });
-            
-            setTimeout(() => {
-                speak("Choose a lucky door for extra points!");
-            }, 200);
+            scoreEl.textContent = `✨ TREASURES: ${score}`;
+            progressTextEl.textContent = `LEVEL ${Math.min(currentQuestionIndex + 1, totalQuestions)} / ${totalQuestions}`;
+            progressBarEl.style.width = `${(currentQuestionIndex / totalQuestions) * 100}%`;
         }
 
-        function handleDoorClick(e) {
-            if (isBonusChecking) return;
-            isBonusChecking = true;
-
-            const clickedDoor = e.currentTarget;
-            const prize = parseInt(clickedDoor.dataset.prize);
+        function showGameOver() {
+            document.getElementById('final-score').textContent = `Treasures Found: ${score}`;
+            gameOverModal.classList.remove('hidden');
             
-            // Phát âm thanh
-            bonusSynth.triggerAttackRelease(["C5", "E5", "G5"], "0.3", Tone.now()); // Hợp âm vui nhộn hơn
-
-            // Hiển thị tất cả các giải thưởng
-            const allDoors = doorContainerEl.querySelectorAll('.door-option');
-            allDoors.forEach(door => {
-                const doorPrize = parseInt(door.dataset.prize);
-                // Hiển thị giải thưởng
-                door.innerHTML = `<span class="text-6xl font-black bounce-in text-white drop-shadow-lg">+${doorPrize}</span>`; // Màu trắng, bóng đổ
-                door.disabled = true; // Vô hiệu hóa nút
-                
-                // Làm mờ các cửa không được chọn
-                if (door !== clickedDoor) {
-                    door.classList.remove('from-yellow-300', 'to-orange-400', 'hover:bg-yellow-300');
-                    door.classList.add('from-gray-300', 'to-gray-400', 'opacity-70'); // Màu xám mờ hơn
-                    door.style.transform = 'scale(0.9)';
-                } else {
-                    // Đánh dấu cửa đã chọn
-                    door.classList.remove('from-yellow-300', 'to-orange-400');
-                    door.classList.add('from-green-400', 'to-blue-500'); // Cửa đã chọn màu xanh
-                    door.style.transform = 'scale(1.15)'; // Phóng to cửa đã chọn nhiều hơn
-                }
-                door.classList.remove('shadow-xl', 'hover:shadow-2xl');
-                door.classList.add('shadow-inner'); // Thay đổi bóng đổ
-            });
-            
-            // Cập nhật điểm
-            score += prize;
-            updateUI();
-            
-            // Hiển thị kết quả
-            const resultText = `You won ${prize} points!`;
-            bonusResultEl.textContent = resultText;
-            bonusResultEl.classList.remove('hidden');
-            speak(resultText);
-
-            // Chuyển sang câu hỏi tiếp theo
-            setTimeout(() => {
-                bonusModalEl.classList.add('hidden');
-                currentQuestionIndex++;
-                loadQuestion(currentQuestionIndex);
-            }, 2500); // Chờ 2.5 giây để bé xem kết quả
+            if (gameOverLoop) clearInterval(gameOverLoop);
+            gameOverLoop = setInterval(() => {
+                launchFirework();
+                if (Math.random() > 0.4) createConfetti();
+            }, 500);
         }
 
-        function showGameEnd() {
-            finalScoreEl.textContent = `Final Score: ${score}`;
-            gameOverModalEl.classList.remove('hidden');
-            
-            speak("Great job! You finished the game!");
-            
-            // Âm thanh kết thúc game vui nhộn
-            if (gameEndSynth && gameEndSynth.loaded) { // Kiểm tra xem đã tải xong chưa
-                gameEndSynth.triggerAttackRelease("C4", "1s"); 
-                gameEndSynth.triggerAttackRelease("E4", "1s", "+0.2");
-                gameEndSynth.triggerAttackRelease("G4", "1s", "+0.4");
-                gameEndSynth.triggerAttackRelease("C5", "1s", "+0.6");
-
-            } else { // Fallback nếu Sampler không có
-                initAudio(); // Đảm bảo các synth khác được khởi tạo
-                const now = Tone.now();
-                bonusSynth.triggerAttackRelease("C5", "0.1", now);
-                bonusSynth.triggerAttackRelease("E5", "0.1", now + 0.1);
-                bonusSynth.triggerAttackRelease("G5", "0.1", now + 0.2);
-                bonusSynth.triggerAttackRelease("C6", "0.1", now + 0.3);
-                bonusSynth.triggerAttackRelease("E6", "0.1", now + 0.4);
-                bonusSynth.triggerAttackRelease("G6", "0.3", now + 0.5);
-            }
-        }
-
-        playAgainButtonEl.addEventListener('click', startGame);
-
-        replaySpeechButtonEl.addEventListener('click', () => {
+        // --- Initial Events ---
+        startBtn.onclick = () => {
             initAudio();
-            clickSynth.triggerAttackRelease('E4', '8n'); // Âm thanh khi nhấp nút phát lại
-            speak(currentQuestionText);
-        });
+            startScreen.classList.add('hidden');
+            loadQuestion();
+        };
 
-        document.addEventListener('DOMContentLoaded', startGame);
+        document.getElementById('play-again-button').onclick = () => {
+            if (gameOverLoop) clearInterval(gameOverLoop);
+            score = 0;
+            currentQuestionIndex = 0;
+            gameOverModal.classList.add('hidden');
+            loadQuestion();
+        };
 
+        document.getElementById('replay-speech-button').onclick = () => {
+            initAudio();
+            if (!bonusModal.classList.contains('hidden')) {
+                speak("Bonus time! Pick a magic gift!");
+            } else if (!gameOverModal.classList.contains('hidden')) {
+                speak("Wonderful! You are a pattern superstar!");
+            } else {
+                speak("What's next?");
+            }
+        };
     </script>
 </body>
 </html>
