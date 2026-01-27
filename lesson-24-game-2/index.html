@@ -1,0 +1,1357 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Subtract from Ten!</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Import Poppins Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;900&display=swap" rel="stylesheet">
+  <style>
+        body {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 20px;
+            font-family: 'Poppins', sans-serif; /* Changed to Poppins */
+            /* More vibrant, kid-friendly background */
+            background: linear-gradient(135deg, #E0F7FA 0%, #FFF9C4 100%);
+            background-attachment: fixed;
+            height: 100%;
+            min-height: 100vh;
+            color: #4A5568;
+        }
+
+        html {
+            height: 100%;
+        }
+
+        .game-container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 30px;
+            /* Softer, colorful shadow */
+            box-shadow: 0 15px 35px rgba(100, 181, 246, 0.2);
+            border: 4px solid #B3E5FC;
+            padding: 30px;
+            min-height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .game-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .game-title {
+            font-size: 3rem;
+            font-weight: 900;
+            /* Colorful gradient text */
+            background: linear-gradient(to right, #FF8A80, #FF80AB, #EA80FC);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0 0 5px 0;
+            filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.1));
+            letter-spacing: 1px;
+        }
+
+        .instructions {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #78909C;
+            margin-bottom: 20px;
+            background: #E1F5FE;
+            display: inline-block;
+            padding: 8px 20px;
+            border-radius: 20px;
+        }
+
+        .question-area {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 20px;
+            align-items: center;
+            flex-grow: 1;
+        }
+
+        .visual-section {
+            text-align: center;
+            background: #FFF3E0; /* Light orange bg for visual area */
+            padding: 20px;
+            border-radius: 25px;
+            border: 3px dashed #FFCC80;
+        }
+
+        .ten-frame-container {
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        .ten-frame {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            background: #FFFFFF;
+            padding: 12px;
+            border-radius: 18px;
+            border: 4px solid #FFAB91;
+            margin-bottom: 10px;
+            box-shadow: 0 4px 0 #FF8A65;
+        }
+
+        .counter {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%; /* Make them rounder like tokens */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: white;
+            border: 2px solid #E0E0E0;
+        }
+
+        .counter.fruit {
+            background: #FFF9C4;
+            border: 2px solid #FFF59D;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            transform: scale(1);
+        }
+        
+        /* Slight pop in animation */
+        .counter.fruit {
+            animation: popIn 0.3s ease-out backwards;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0); }
+            to { transform: scale(1); }
+        }
+
+        .counter.crossed-out::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(229, 57, 53, 0.1);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .counter.crossed-out::after {
+            content: '✖'; /* Use a thicker cross */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #D32F2F;
+            font-size: 3rem;
+            font-weight: 900;
+            z-index: 2;
+            text-shadow: 2px 2px 0 white;
+            line-height: 1;
+        }
+
+        .counter.empty {
+            background: #FAFAFA;
+            border: 2px dashed #CFD8DC;
+            border-radius: 50%;
+        }
+
+        .problem-text {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #5D4037;
+            margin-top: 15px;
+            background: white;
+            padding: 10px 20px;
+            border-radius: 15px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 0 #D7CCC8;
+        }
+
+        .speaker-icon {
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #81D4FA;
+            color: white;
+            border-radius: 50%;
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 3px 0 #29B6F6;
+        }
+
+        .speaker-icon:hover {
+            transform: translateY(-2px);
+            background: #4FC3F7;
+        }
+        
+        .speaker-icon:active {
+            transform: translateY(1px);
+            box-shadow: 0 1px 0 #29B6F6;
+        }
+
+        .equations-section {
+            background: #F1F8E9; /* Light green */
+            padding: 25px;
+            border-radius: 25px;
+            border: 3px dashed #AED581;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .equation {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin: 15px 0;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #33691E;
+            flex-wrap: wrap;
+        }
+
+        .equation-label {
+            color: #558B2F;
+            margin-bottom: 5px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .answer-box {
+            width: 70px;
+            height: 70px;
+            border: 3px dashed #BDBDBD;
+            border-radius: 15px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: #333;
+            transition: all 0.2s ease;
+            user-select: none;
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.05);
+        }
+        
+        .answer-box.drag-over {
+            background: #E0F2F1;
+            border-color: #26A69A;
+            transform: scale(1.1);
+        }
+
+        .answer-box.filled {
+            background: #FFFDE7; /* Light yellow */
+            border: 3px solid #FDD835;
+            box-shadow: 0 4px 0 #FBC02D;
+        }
+
+        .answer-box.correct {
+            background: #C8E6C9;
+            border: 3px solid #43A047;
+            box-shadow: 0 4px 0 #2E7D32;
+            color: #1B5E20;
+            animation: bounce 0.6s cubic-bezier(0.280, 0.840, 0.420, 1);
+        }
+
+        .answer-box.active {
+            background: #E1F5FE;
+            border: 3px solid #29B6F6;
+            box-shadow: 0 0 15px rgba(41, 182, 246, 0.3);
+            transform: scale(1.05);
+        }
+
+        .answer-options {
+            display: flex;
+            gap: 12px;
+            margin: 10px 0 25px 0;
+            flex-wrap: wrap;
+            justify-content: center;
+            background: rgba(255,255,255,0.5);
+            padding: 15px;
+            border-radius: 20px;
+        }
+
+        .option-button {
+            width: 60px;
+            height: 60px;
+            border: none;
+            border-radius: 50%; /* Bubble shape */
+            background: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: grab;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            color: #1565C0;
+            box-shadow: 0 4px 0 #90CAF9, 0 5px 10px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+        }
+
+        .option-button:hover:not(.used) {
+            transform: translateY(-4px) scale(1.1);
+            background: #E3F2FD;
+        }
+
+        .option-button:active:not(.used) {
+            transform: translateY(2px);
+            box-shadow: 0 0 0 #90CAF9, inset 0 2px 5px rgba(0,0,0,0.1);
+            cursor: grabbing;
+        }
+        
+        .option-button.dragging {
+            opacity: 0.5;
+            transform: scale(1.1);
+        }
+
+        .feedback {
+            text-align: center;
+            margin: 15px 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            min-height: 40px;
+            text-shadow: 1px 1px 0px white;
+        }
+
+        .feedback.success {
+            color: #43A047;
+            animation: pulse 0.5s;
+        }
+
+        .feedback.error {
+            color: #E53935;
+            animation: shake 0.4s;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: auto;
+            padding-top: 10px;
+        }
+
+        .control-button {
+            padding: 12px 35px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .next-button {
+            background: #66BB6A;
+            color: white;
+            box-shadow: 0 5px 0 #388E3C;
+        }
+
+        .next-button:hover:not(:disabled) {
+            background: #4CAF50;
+            transform: translateY(-2px);
+        }
+        
+        .next-button:active:not(:disabled) {
+            transform: translateY(2px);
+            box-shadow: 0 0 0 #388E3C;
+        }
+
+        .next-button:disabled {
+            background: #CFD8DC;
+            color: #90A4AE;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .back-button {
+            background: #FFB74D;
+            color: white;
+            box-shadow: 0 5px 0 #F57C00;
+        }
+
+        .back-button:hover:not(:disabled) {
+            background: #FFA726;
+            transform: translateY(-2px);
+        }
+
+        .back-button:active:not(:disabled) {
+            transform: translateY(2px);
+            box-shadow: 0 0 0 #F57C00;
+        }
+        
+        .back-button:disabled {
+            background: #FFE0B2;
+            color: #FFF3E0;
+            box-shadow: none;
+            cursor: default;
+            transform: none;
+            opacity: 0.6;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .star {
+            position: absolute;
+            font-size: 3rem;
+            animation: celebrate 2s ease-out forwards;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.2));
+        }
+
+        /* Mystery Box Styles */
+        .mystery-box-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(40, 50, 70, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 1001;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .mystery-box-title {
+            font-size: 2.5rem;
+            color: #FFECB3;
+            margin-bottom: 40px;
+            font-weight: 700;
+            text-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            animation: bounceIn 0.5s ease-out;
+            text-align: center;
+        }
+
+        .mystery-boxes-container {
+            display: flex;
+            gap: 50px;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .mystery-box {
+            font-size: 6rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            animation: mysteryBoxAppear 0.5s ease-out backwards;
+            filter: drop-shadow(0 15px 25px rgba(0,0,0,0.3));
+            position: relative;
+            background: radial-gradient(circle at 30% 30%, #FFCC80, #EF6C00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            /* Fallback for emoji */
+            text-shadow: 0 0 0 rgba(0,0,0,0); 
+        }
+
+        .mystery-box:nth-child(1) { animation-delay: 0.1s; }
+        .mystery-box:nth-child(2) { animation-delay: 0.2s; }
+        .mystery-box:nth-child(3) { animation-delay: 0.3s; }
+
+        .mystery-box:hover {
+            transform: scale(1.25) rotate(5deg);
+            filter: drop-shadow(0 20px 40px rgba(255,193,7,0.6));
+        }
+
+        .mystery-box.opening {
+            animation: giftOpen 1s ease-out forwards;
+            pointer-events: none;
+        }
+
+        .revealed-gift {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 8rem;
+            z-index: 1003;
+            animation: revealGift 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+            pointer-events: none;
+            filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3));
+        }
+
+        /* Results Screen */
+        .results-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #42A5F5 0%, #BA68C8 100%);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            animation: fadeIn 0.5s ease-out;
+            padding: 20px;
+        }
+
+        .results-container {
+            background: white;
+            border-radius: 40px;
+            padding: 50px;
+            max-width: 900px;
+            width: 90%;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.4);
+            animation: bounceIn 0.6s ease-out;
+            text-align: center;
+            border: 5px solid #E1BEE7;
+        }
+
+        .results-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            color: #8E24AA;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        .results-score .score-number {
+            font-size: 4rem;
+            font-weight: 900;
+            color: #43A047;
+            text-shadow: 2px 2px 0 #C8E6C9;
+            margin: 15px 0;
+        }
+        
+        .results-gifts-grid {
+            background: #FFF3E0;
+            border: 2px dashed #FFB74D;
+            border-radius: 20px;
+            padding: 25px;
+            gap: 20px;
+        }
+        
+        .gift-item {
+            font-size: 3.5rem;
+            padding: 15px;
+            border-radius: 20px;
+            background: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            transition: transform 0.2s;
+        }
+        
+        .gift-item:hover {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .results-button {
+            padding: 18px 50px;
+            font-size: 1.5rem;
+            border-radius: 50px;
+            font-family: 'Poppins', sans-serif;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 8px 0 #2E7D32;
+        }
+        
+        .restart-button:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 0 #2E7D32;
+        }
+        
+        .restart-button:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #2E7D32;
+        }
+
+        @keyframes celebrate {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-300px) rotate(360deg); opacity: 0; }
+        }
+        @keyframes mysteryBoxAppear {
+            0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); }
+        }
+        @keyframes giftOpen {
+            0% { transform: scale(1); }
+            20% { transform: scale(1.1) rotate(-10deg); }
+            40% { transform: scale(1.1) rotate(10deg); }
+            60% { transform: scale(1.1) rotate(-10deg); }
+            100% { transform: scale(0) rotate(0deg); opacity: 0; }
+        }
+        @keyframes revealGift {
+            0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 1; }
+            70% { transform: translate(-50%, -50%) scale(0.9); }
+            100% { transform: translate(-50%, -50%) scale(1); opacity: 0; top: 10%; } /* Fly up and away */
+        }
+
+        /* Mobile Adjustments */
+        @media (max-width: 768px) {
+            .game-title { font-size: 2rem; }
+            .instructions { font-size: 1rem; padding: 6px 15px; }
+            .question-area { grid-template-columns: 1fr; gap: 20px; }
+            .counter { width: 35px; height: 35px; font-size: 1.2rem; }
+            .equation { font-size: 1.5rem; }
+            .answer-box { width: 50px; height: 50px; font-size: 1.5rem; }
+            .option-button { width: 50px; height: 50px; font-size: 1.3rem; }
+            .mystery-box { font-size: 4rem; }
+            .revealed-gift { font-size: 6rem; }
+            .results-title { font-size: 2.5rem; }
+            .results-score .score-number { font-size: 3rem; }
+            .controls { gap: 15px; }
+            .control-button { padding: 10px 20px; font-size: 1rem; }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+ </head>
+ <body>
+  <main class="game-container">
+   <header class="game-header">
+    <h1 class="game-title" id="gameTitle">Subtract from Ten!</h1>
+    <p class="instructions" id="instructionText">Drag the numbers to complete the equations!</p>
+   </header>
+   <div class="question-area">
+    <div class="visual-section">
+     <div class="ten-frame-container" id="tenFrameContainer"><!-- Ten frames will be generated here -->
+     </div>
+     <div class="problem-text" id="problemText">
+      18 − 3 = ? <span class="speaker-icon" onclick="playAudio()">🔊</span>
+     </div>
+    </div>
+    <div class="equations-section">
+     <div class="equation-label">
+      Fill in the blanks:
+     </div>
+     <div class="equation"><span>10 −</span>
+      <div class="answer-box" id="box1" data-box="1"></div><span>=</span>
+      <div class="answer-box" id="box2" data-box="2"></div>
+     </div>
+     <div class="answer-options" id="options1"><!-- Options for first equation -->
+     </div>
+     <div class="equation">
+      <div class="answer-box" id="box3" data-box="3"></div><span>+</span>
+      <div class="answer-box" id="box4" data-box="4"></div><span>=</span>
+      <div class="answer-box" id="box5" data-box="5"></div>
+     </div>
+     <div class="answer-options" id="options2"><!-- Options for second equation -->
+     </div>
+    </div>
+   </div>
+   <div class="feedback" id="feedback"></div>
+   <div class="controls"><button class="control-button back-button" onclick="previousQuestion()" id="backButton" disabled>◀ Back</button> <button class="control-button next-button" onclick="nextQuestion()" id="nextButton" disabled>Next ▶</button>
+   </div>
+  </main>
+  <div class="celebration" id="celebration"></div>
+  <script>
+        const defaultConfig = {
+            game_title: "Subtract from Ten!",
+            instruction_text: "Drag the numbers to complete the equations!",
+            celebration_text: "Great job!"
+        };
+
+        let currentConfig = { ...defaultConfig };
+
+        const problems = [
+            { problem: "18 − 9", minuend: 18, subtrahend: 9, answer: 9, audio: "Eighteen take away nine equals what?" },
+            { problem: "17 − 9", minuend: 17, subtrahend: 9, answer: 8, audio: "Seventeen take away nine equals what?" },
+            { problem: "16 − 8", minuend: 16, subtrahend: 8, answer: 8, audio: "Sixteen take away eight equals what?" },
+            { problem: "15 − 7", minuend: 15, subtrahend: 7, answer: 8, audio: "Fifteen take away seven equals what?" },
+            { problem: "14 − 6", minuend: 14, subtrahend: 6, answer: 8, audio: "Fourteen take away six equals what?" },
+            { problem: "13 − 5", minuend: 13, subtrahend: 5, answer: 8, audio: "Thirteen take away five equals what?" },
+            { problem: "12 − 4", minuend: 12, subtrahend: 4, answer: 8, audio: "Twelve take away four equals what?" },
+            { problem: "11 − 5", minuend: 11, subtrahend: 5, answer: 6, audio: "Eleven take away five equals what?" },
+            { problem: "13 − 7", minuend: 13, subtrahend: 7, answer: 6, audio: "Thirteen take away seven equals what?" },
+            { problem: "14 − 8", minuend: 14, subtrahend: 8, answer: 6, audio: "Fourteen take away eight equals what?" },
+            { problem: "15 − 9", minuend: 15, subtrahend: 9, answer: 6, audio: "Fifteen take away nine equals what?" },
+            { problem: "11 − 7", minuend: 11, subtrahend: 7, answer: 4, audio: "Eleven take away seven equals what?" }
+        ];
+
+        let currentProblemIndex = 0;
+        let selectedBox = null;
+        let answers = {};
+        let correctBoxes = new Set();
+        let collectedGifts = [];
+        let totalScore = 0;
+
+        // Sound effects using Web Audio API
+        let audioContext = null;
+        
+        function initAudio() {
+            if (!audioContext) {
+                try {
+                    audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.log('Audio not supported');
+                }
+            }
+            return audioContext;
+        }
+        
+        function playSound(frequency, duration, type = 'sine') {
+            const ctx = initAudio();
+            if (!ctx) return;
+            
+            try {
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+                
+                const oscillator = ctx.createOscillator();
+                const gainNode = ctx.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(ctx.destination);
+                
+                oscillator.frequency.setValueAtTime(frequency, ctx.currentTime);
+                oscillator.type = type;
+                
+                gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+                
+                oscillator.start(ctx.currentTime);
+                oscillator.stop(ctx.currentTime + duration);
+                
+                showSoundIndicator();
+            } catch (e) {
+                console.log('Audio playback failed:', e);
+            }
+        }
+
+        function playCorrectSound() {
+            playSound(523.25, 0.2);
+            setTimeout(() => playSound(659.25, 0.2), 100);
+            setTimeout(() => playSound(783.99, 0.3), 200);
+        }
+
+        function playIncorrectSound() {
+            playSound(392, 0.3, 'triangle');
+            setTimeout(() => playSound(329.63, 0.4, 'triangle'), 150);
+        }
+
+        function playClickSound() {
+            playSound(800, 0.1, 'square');
+        }
+
+        function showSoundIndicator() {
+            const indicator = document.createElement('div');
+            indicator.className = 'sound-indicator';
+            indicator.textContent = '🔊';
+            document.body.appendChild(indicator);
+            
+            setTimeout(() => {
+                if (indicator.parentNode) {
+                    indicator.parentNode.removeChild(indicator);
+                }
+            }, 500);
+        }
+
+        function generateTenFrames(minuend, subtrahend) {
+            const container = document.getElementById('tenFrameContainer');
+            container.innerHTML = '';
+
+            // Safe emoji array - only using widely supported emojis
+            const fruits = ['🍎', '🍌', '🍇', '🍓', '🍑', '🍒', '🍍', '🍈', '🍉', '🍋', '🍐', '🥕', '🌽', '🍅', '🥒', '🧅', '🥦', '🍆', '🥝'];
+            
+            const currentFruit = fruits[currentProblemIndex % fruits.length];
+            
+            const totalFrames = Math.ceil(minuend / 10);
+            
+            for (let frame = 0; frame < totalFrames; frame++) {
+                const frameDiv = document.createElement('div');
+                frameDiv.className = 'ten-frame';
+                
+                const startIndex = frame * 10;
+                
+                for (let i = 0; i < 10; i++) {
+                    const counter = document.createElement('div');
+                    const globalIndex = startIndex + i;
+                    
+                    if (globalIndex < minuend) {
+                        counter.className = 'counter fruit';
+                        counter.textContent = currentFruit;
+                        
+                        if (frame === 0 && i < subtrahend) {
+                            counter.classList.add('crossed-out');
+                        }
+                    } else {
+                        counter.className = 'counter empty';
+                    }
+                    
+                    frameDiv.appendChild(counter);
+                }
+                
+                container.appendChild(frameDiv);
+            }
+        }
+
+        function calculateBreakApart(minuend, subtrahend) {
+            const onesInMinuend = minuend % 10;
+            
+            return {
+                subtractFromTen: subtrahend,
+                remainingInTen: 10 - subtrahend,
+                additionLeft: 10 - subtrahend,
+                additionRight: onesInMinuend
+            };
+        }
+
+        function generateOptions(correctAnswer, type) {
+            const options = [correctAnswer];
+            const range = type === 'small' ? 5 : 10;
+            
+            while (options.length < 3) {
+                const option = Math.max(0, Math.min(20, correctAnswer + Math.floor(Math.random() * range) - Math.floor(range/2)));
+                if (!options.includes(option)) {
+                    options.push(option);
+                }
+            }
+            
+            return options.sort(() => Math.random() - 0.5);
+        }
+
+        function loadProblem() {
+            const problem = problems[currentProblemIndex];
+            const breakdown = calculateBreakApart(problem.minuend, problem.subtrahend);
+            
+            generateTenFrames(problem.minuend, problem.subtrahend);
+            document.getElementById('problemText').innerHTML = `${problem.problem} = ? <span class="speaker-icon" onclick="playAudio()">🔊</span>`;
+            
+            answers = {};
+            correctBoxes.clear();
+            selectedBox = null;
+            touchSelectedValue = null;
+            touchSelectedButton = null;
+            
+            for (let i = 1; i <= 5; i++) {
+                const box = document.getElementById(`box${i}`);
+                box.textContent = '';
+                box.className = 'answer-box';
+                // Reset classes
+                box.classList.remove('filled', 'correct', 'active');
+            }
+            
+            const correctAnswers = {
+                1: breakdown.subtractFromTen,
+                2: breakdown.remainingInTen,
+                3: breakdown.additionLeft,
+                4: breakdown.additionRight,
+                5: problem.answer
+            };
+            
+            const options1 = generateOptions(correctAnswers[1], 'small').concat(generateOptions(correctAnswers[2], 'small'));
+            const uniqueOptions1 = [...new Set(options1)].slice(0, 6);
+            
+            const options2 = [correctAnswers[3], correctAnswers[4], correctAnswers[5]]
+                .concat(generateOptions(correctAnswers[3], 'large'))
+                .concat(generateOptions(correctAnswers[4], 'small'))
+                .concat(generateOptions(correctAnswers[5], 'large'));
+            const uniqueOptions2 = [...new Set(options2)].slice(0, 8);
+            
+            displayOptions('options1', uniqueOptions1);
+            displayOptions('options2', uniqueOptions2);
+            
+            window.correctAnswers = correctAnswers;
+            
+            document.getElementById('backButton').disabled = currentProblemIndex === 0;
+            document.getElementById('nextButton').disabled = true;
+            document.getElementById('feedback').textContent = '';
+            document.getElementById('feedback').className = 'feedback';
+            
+            setupDragAndDrop();
+        }
+
+        function displayOptions(containerId, options) {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            
+            options.forEach(option => {
+                const button = document.createElement('button');
+                button.className = 'option-button';
+                button.textContent = option;
+                button.dataset.value = option;
+                
+                container.appendChild(button);
+            });
+        }
+
+        let touchSelectedValue = null;
+        let touchSelectedButton = null;
+
+        function setupDragAndDrop() {
+            document.querySelectorAll('.option-button').forEach(button => {
+                button.setAttribute('draggable', 'true');
+                
+                // Desktop drag events
+                button.addEventListener('dragstart', function(e) {
+                    playClickSound();
+                    button.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', button.dataset.value);
+                });
+                
+                button.addEventListener('dragend', function() {
+                    button.classList.remove('dragging');
+                });
+                
+                // Mobile touch events - tap to select
+                button.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Clear previous selection
+                    if (touchSelectedButton && touchSelectedButton !== button) {
+                        touchSelectedButton.style.border = 'none';
+                        touchSelectedButton.style.background = 'white';
+                        touchSelectedButton.style.transform = 'none';
+                        touchSelectedButton.style.boxShadow = '0 4px 0 #90CAF9, 0 5px 10px rgba(0,0,0,0.1)';
+                    }
+                    
+                    // Select this button
+                    touchSelectedValue = parseInt(button.dataset.value);
+                    touchSelectedButton = button;
+                    button.style.transform = 'scale(1.1) translateY(-5px)';
+                    button.style.background = '#E1F5FE';
+                    button.style.boxShadow = '0 0 0 4px #29B6F6';
+                    playClickSound();
+                });
+            });
+            
+            document.querySelectorAll('.answer-box').forEach(box => {
+                // Desktop drag events
+                box.addEventListener('dragover', function(e) {
+                    if (box.classList.contains('correct')) return;
+                    
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    box.classList.add('drag-over');
+                });
+                
+                box.addEventListener('dragleave', function() {
+                    box.classList.remove('drag-over');
+                });
+                
+                box.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    box.classList.remove('drag-over');
+                    
+                    if (box.classList.contains('correct')) return;
+                    
+                    const value = parseInt(e.dataTransfer.getData('text/plain'));
+                    const boxNumber = parseInt(box.dataset.box);
+                    
+                    selectAnswer(boxNumber, value);
+                });
+                
+                // Mobile touch events - tap box to place selected value
+                box.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    if (box.classList.contains('correct')) return;
+                    
+                    if (touchSelectedValue !== null) {
+                        const boxNumber = parseInt(box.dataset.box);
+                        selectAnswer(boxNumber, touchSelectedValue);
+                        
+                        // Clear selection
+                        if (touchSelectedButton) {
+                            touchSelectedButton.style.border = 'none';
+                            touchSelectedButton.style.background = 'white';
+                            touchSelectedButton.style.transform = 'none';
+                            touchSelectedButton.style.boxShadow = '0 4px 0 #90CAF9, 0 5px 10px rgba(0,0,0,0.1)';
+                        }
+                        touchSelectedValue = null;
+                        touchSelectedButton = null;
+                    }
+                });
+            });
+        }
+
+        function selectAnswer(boxNumber, value) {
+            const box = document.getElementById(`box${boxNumber}`);
+            
+            box.textContent = value;
+            box.classList.add('filled');
+            
+            answers[boxNumber] = value;
+            
+            if (value === window.correctAnswers[boxNumber]) {
+                playCorrectSound();
+                box.classList.add('correct');
+                correctBoxes.add(boxNumber);
+                
+                document.getElementById('feedback').textContent = 'Correct! 🎉';
+                document.getElementById('feedback').className = 'feedback success';
+            } else {
+                playIncorrectSound();
+                document.getElementById('feedback').textContent = 'Try again! 😊';
+                document.getElementById('feedback').className = 'feedback error';
+                setTimeout(() => {
+                    box.textContent = '';
+                    box.className = 'answer-box';
+                    delete answers[boxNumber];
+                    document.getElementById('feedback').textContent = '';
+                }, 1500);
+            }
+            
+            checkAllAnswers();
+        }
+
+        function checkAllAnswers() {
+            const allCorrect = Object.keys(window.correctAnswers).every(key => 
+                answers[key] === window.correctAnswers[key]
+            );
+            
+            if (allCorrect && Object.keys(answers).length === 5) {
+                const problem = problems[currentProblemIndex];
+                document.getElementById('feedback').textContent = `${currentConfig.celebration_text} ${problem.problem} = ${problem.answer}!`;
+                document.getElementById('feedback').className = 'feedback success';
+                
+                document.getElementById('nextButton').disabled = false;
+                
+                celebrate();
+                
+                // Auto-advance logic (optional, but requested to keep logic same)
+                setTimeout(() => {
+                   if (currentProblemIndex < problems.length - 1) {
+                        showMysteryBoxBeforeNext();
+                   } else {
+                        totalScore += 10;
+                        setTimeout(() => showResults(), 1000);
+                   }
+                }, 1500);
+            }
+        }
+
+        function celebrate() {
+            const celebration = document.getElementById('celebration');
+            celebration.innerHTML = '';
+            
+            const stars = ['⭐', '🌟', '✨', '🎉', '🎊', '🍎', '🍊', '🍌', '🍇', '🍓', '🍍', '🍈', '🍉'];
+            
+            for (let i = 0; i < 25; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.textContent = stars[Math.floor(Math.random() * stars.length)];
+                star.style.left = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 0.5 + 's';
+                celebration.appendChild(star);
+            }
+            
+            setTimeout(() => {
+                celebration.innerHTML = '';
+            }, 3000);
+        }
+
+        function playAudio() {
+            playClickSound();
+            const problem = problems[currentProblemIndex];
+            
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(problem.audio);
+                // Try to find a good English voice
+                const voices = speechSynthesis.getVoices();
+                const englishVoice = voices.find(v => v.lang.includes('en'));
+                if (englishVoice) utterance.voice = englishVoice;
+
+                utterance.rate = 0.9;
+                utterance.pitch = 1.1;
+                utterance.volume = 1.0;
+                speechSynthesis.speak(utterance);
+            } else {
+                const tones = [523, 587, 659, 698, 784];
+                tones.forEach((tone, index) => {
+                    setTimeout(() => playSound(tone, 0.3, 'triangle'), index * 200);
+                });
+            }
+            
+            // Visual feedback for sound
+            const btn = document.querySelector('.speaker-icon');
+            btn.style.transform = 'scale(1.2)';
+            setTimeout(() => btn.style.transform = 'scale(1)', 200);
+        }
+
+        function nextQuestion() {
+            playClickSound();
+            if (currentProblemIndex < problems.length - 1) {
+                // Logic handled by mystery box usually, but button triggers it too if clicked manually
+                showMysteryBoxBeforeNext();
+            }
+        }
+        
+        function showMysteryBoxBeforeNext() {
+            // Prevent multiple overlays
+            if (document.querySelector('.mystery-box-overlay')) return;
+
+            const gifts = ['🎁', '🎉', '🏆', '⭐', '🌟', '🎊', '🎈', '🍎', '🍊', '🍌', '🍇', '🍓', '🍑', '🍒', '🍍', '💎', '🌺', '🎀', '🍬', '🧁', '🍰'];
+            
+            // Create overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'mystery-box-overlay';
+            
+            // Create title
+            const title = document.createElement('div');
+            title.className = 'mystery-box-title';
+            title.textContent = 'Pick a Mystery Box! 🎉';
+            overlay.appendChild(title);
+            
+            // Create container for boxes
+            const container = document.createElement('div');
+            container.className = 'mystery-boxes-container';
+            
+            // Create 3 mystery boxes
+            for (let i = 0; i < 3; i++) {
+                const randomGift = gifts[Math.floor(Math.random() * gifts.length)];
+                
+                const box = document.createElement('div');
+                box.className = 'mystery-box';
+                // Using a div for the emoji to allow CSS gradient text
+                box.innerHTML = '🎁'; 
+                box.dataset.gift = randomGift;
+                
+                box.addEventListener('click', function() {
+                    if (box.classList.contains('opening')) return;
+                    
+                    playCorrectSound();
+                    
+                    // Disable all boxes
+                    document.querySelectorAll('.mystery-box').forEach(b => {
+                        b.style.pointerEvents = 'none';
+                    });
+                    
+                    // Open clicked box
+                    box.classList.add('opening');
+                    
+                    setTimeout(() => {
+                        // Show revealed gift
+                        const revealedGift = document.createElement('div');
+                        revealedGift.className = 'revealed-gift';
+                        revealedGift.textContent = box.dataset.gift;
+                        document.body.appendChild(revealedGift);
+                        
+                        // Save the gift
+                        collectedGifts.push(box.dataset.gift);
+                        totalScore += 10;
+                        
+                        setTimeout(() => {
+                            if (revealedGift.parentNode) {
+                                revealedGift.parentNode.removeChild(revealedGift);
+                            }
+                        }, 1500);
+                    }, 500);
+                    
+                    // Remove overlay and move to next question or show results
+                    setTimeout(() => {
+                        if (overlay.parentNode) {
+                            overlay.parentNode.removeChild(overlay);
+                        }
+                        // Move to next question after box is opened
+                        currentProblemIndex++;
+                        
+                        // Check if this was the last question
+                        if (currentProblemIndex >= problems.length) {
+                            showResults();
+                        } else {
+                            loadProblem();
+                        }
+                    }, 2000);
+                });
+                
+                container.appendChild(box);
+            }
+            
+            overlay.appendChild(container);
+            document.body.appendChild(overlay);
+        }
+
+        function previousQuestion() {
+            playClickSound();
+            if (currentProblemIndex > 0) {
+                currentProblemIndex--;
+                loadProblem();
+            }
+        }
+
+        function showResults() {
+            playCorrectSound();
+            
+            const resultsScreen = document.createElement('div');
+            resultsScreen.className = 'results-screen';
+            
+            const resultsContainer = document.createElement('div');
+            resultsContainer.className = 'results-container';
+            
+            // Title
+            const title = document.createElement('div');
+            title.className = 'results-title';
+            title.textContent = '🎉 Congratulations! 🎉';
+            resultsContainer.appendChild(title);
+            
+            // Score
+            const scoreDiv = document.createElement('div');
+            scoreDiv.className = 'results-score';
+            scoreDiv.innerHTML = `
+                You answered all ${problems.length} questions correctly!
+                <div class="score-number">${totalScore} Points</div>
+            `;
+            resultsContainer.appendChild(scoreDiv);
+            
+            // Gifts collected
+            if (collectedGifts.length > 0) {
+                const giftsTitle = document.createElement('div');
+                giftsTitle.className = 'results-gifts-title';
+                giftsTitle.style.fontSize = '1.5rem';
+                giftsTitle.style.fontWeight = '700';
+                giftsTitle.style.marginBottom = '15px';
+                giftsTitle.style.color = '#546E7A';
+                giftsTitle.textContent = `🎁 Your Treasures (${collectedGifts.length}):`;
+                resultsContainer.appendChild(giftsTitle);
+                
+                const giftsGrid = document.createElement('div');
+                giftsGrid.className = 'results-gifts-grid';
+                
+                collectedGifts.forEach(gift => {
+                    const giftItem = document.createElement('div');
+                    giftItem.className = 'gift-item';
+                    giftItem.textContent = gift;
+                    giftsGrid.appendChild(giftItem);
+                });
+                
+                resultsContainer.appendChild(giftsGrid);
+            }
+            
+            // Buttons
+            const buttonsDiv = document.createElement('div');
+            buttonsDiv.className = 'results-buttons';
+            
+            const restartButton = document.createElement('button');
+            restartButton.className = 'results-button restart-button';
+            restartButton.style.background = '#FF7043';
+            restartButton.style.color = 'white';
+            restartButton.textContent = '🔄 Play Again';
+            restartButton.onclick = restartGame;
+            buttonsDiv.appendChild(restartButton);
+            
+            resultsContainer.appendChild(buttonsDiv);
+            resultsScreen.appendChild(resultsContainer);
+            document.body.appendChild(resultsScreen);
+            
+            // Celebration effect
+            celebrate();
+        }
+
+        function restartGame() {
+            playClickSound();
+            
+            // Remove results screen
+            const resultsScreen = document.querySelector('.results-screen');
+            if (resultsScreen) {
+                resultsScreen.remove();
+            }
+            
+            // Reset game state
+            currentProblemIndex = 0;
+            collectedGifts = [];
+            totalScore = 0;
+            
+            // Load first question
+            loadProblem();
+        }
+
+        async function onConfigChange(config) {
+            currentConfig = { ...config };
+            document.getElementById('gameTitle').textContent = config.game_title || defaultConfig.game_title;
+            document.getElementById('instructionText').textContent = config.instruction_text || defaultConfig.instruction_text;
+        }
+
+        function mapToCapabilities(config) {
+            return {
+                recolorables: [],
+                borderables: [],
+                fontEditable: {},
+                fontSizeable: {}
+            };
+        }
+
+        function mapToEditPanelValues(config) {
+            return new Map([
+                ["game_title", config.game_title || defaultConfig.game_title],
+                ["instruction_text", config.instruction_text || defaultConfig.instruction_text],
+                ["celebration_text", config.celebration_text || defaultConfig.celebration_text]
+            ]);
+        }
+
+        function enableAudio() {
+            const ctx = initAudio();
+            if (ctx && ctx.state === 'suspended') {
+                ctx.resume().then(() => {
+                    console.log('Audio enabled');
+                });
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.elementSdk) {
+                window.elementSdk.init({
+                    defaultConfig,
+                    onConfigChange,
+                    mapToCapabilities,
+                    mapToEditPanelValues
+                });
+            }
+            
+            document.addEventListener('click', enableAudio, { once: true });
+            document.addEventListener('touchstart', enableAudio, { once: true });
+            
+            loadProblem();
+        });
+    </script>
+ </body>
+</html>
